@@ -10,13 +10,14 @@ class Book(db.Model):
     number_in_stock = db.Column(db.Integer, nullable=False)
     is_featured = db.Column(db.Boolean, index=True, nullable=False)
 
-    cover = db.relationship('Cover', backref='book', lazy='dynamic')
-    product_pricing = db.relationship('ProductPricing', backref='book', lazy='dynamic')
+    cover = db.relationship('Cover', backref='book', lazy='select')
+    product_pricing = db.relationship('ProductPricing', backref='book', lazy='select')
     tags = db.relationship('Tag', secondary='taggings', backref='books', lazy='joined')
-    review = db.relationship('Review', backref='book', lazy='dynamic')
+    review = db.relationship('Review', backref='book', lazy='select')
     authors_names = db.relationship('AuthorName', secondary='authorships', backref='books', lazy='joined')
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='joined')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='joined')
+
 
     @staticmethod
     def get_featured():
@@ -102,7 +103,7 @@ class Author(db.Model):
 class Genre(db.Model):
     name = db.Column(db.String(32), primary_key=True)
 
-    discounts = db.relationship('CategoryDiscount', secondary='discounts_genres_association',
+    discounts = db.relationship('CategoryDiscount', secondary='discounts_genres',
                                 backref='genres', lazy='joined')
 
     def __repr__(self):
@@ -128,10 +129,10 @@ class CategoryDiscount(db.Model):
         return '<Discount for genres \'{}\' valid until \'{}\'>'.format(self.genres, self.valid_until)
 
 
-discounts_genres_association = db.Table('discounts_genres',
-    category_discount_id = db.Column('category_discount_id', db.Integer,
+discounts_genres = db.Table('discounts_genres',
+    db.Column('category_discount_id', db.Integer,
                                      db.ForeignKey('category_discount.id'), primary_key=True),
-    genre_name = db.Column('genre_name', db.String(32), db.ForeignKey('genre.name'), primary_key=True)
+    db.Column('genre_name', db.String(32), db.ForeignKey('genre.name'), primary_key=True)
 )
 
 
@@ -143,6 +144,92 @@ class Publisher(db.Model):
 
 
 publishers_books = db.Table('publishers_books',
-    publisher_name = db.Column('publisher_name', db.String(128), db.ForeignKey('publisher.name'), primary_key=True),
-    book_id = db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True)
+    db.Column('publisher_name', db.String(128), db.ForeignKey('publisher.name'), primary_key=True),
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True)
 )
+
+
+class ItemOrdered(db.Model):
+    order_id = db.Column(db.Integer,  db.ForeignKey('order.id'), primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), primary_key=True)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Numeric, nullable=False)
+
+    book = db.relationship('Book', lazy='select')
+
+    def __repr__(self):
+        return '<ItemOrdered book: {} quantity: {} price: {}>'.format(self.book, self.quantity, self.price)
+
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), index=True)
+    _location_fk = db.Column(db.Integer, db.ForeignKey('location.id'), index=True)
+    payment_method_name = db.Column(db.String(64), db.ForeignKey('payment_method.name'), index=True)
+    delivery_method_name = db.Column(db.String(64), db.ForeignKey('delivery_method.name'), index=True)
+    payment_id = db.Column(db.Integer, nullable=False, index=True)
+    order_date = db.Column(db.DateTime, nullable=False, index=True)
+    payment_date = db.Column(db.DateTime, nullable=False, index=True)
+    total_price = db.Column(db.Numeric, nullable=False)
+
+    items_ordered = db.relationship('ItemOrdered', backref='order', lazy='joined')
+    client = db.relationship('Client', backref='orders', lazy='joined')
+    location = db.relationship('Location', backref='orders', lazy='joined')
+    delivery_method = db.relationship('DeliveryMethod', lazy='joined')
+    payment_method = db.relationship('PaymentMethod', lazy='joined')
+
+
+    def __repr__(self):
+        return '<Order {} on {}>'.format(self.id, self.order_date)
+
+
+class PaymentMethod(db.Model):
+    name = db.Column(db.String(64), primary_key=True)
+
+    def __repr__(self):
+        return '<PaymentMethod \'{}\'>'.format(self.name)
+
+
+class DeliveryMethod(db.Model):
+    name = db.Column(db.String(64), primary_key=True)
+
+    def __repr__(self):
+        return '<DeliveryMethod \'{}\'>'.format(self.name)
+
+
+class Location(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    place = db.Column(db.String(64), nullable=False)
+    street_name = db.Column(db.String(128), nullable=False)
+    street_number = db.Column(db.String(8), nullable=False)
+    zip_code = db.Column(db.String(64), nullable=False, index=True)
+
+    __table_args__ =  (db.Index('location_index', place, street_name, street_number), )
+
+    def __repr__(self):
+        return '<Location {} {} {} {}>'.format(self.zip_code, self.place, self.street_name, self.street_number)
+
+
+class Client(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    surname = db.Column(db.String(128), nullable=False, index=True)
+    phone_number = db.Column(db.Integer, nullable=False, unique=True, index=True)
+    email = db.Column(db.String(64), unique=True, nullable=False, index=True)
+
+    opinions = db.relationship('Opinion', backref='client', lazy='joined')
+
+    def __repr__(self):
+        return '<Client \'{} {} {}\'>'.format(self.name, self.surname, self.email)
+
+
+class Opinion(db.Model):
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(2048))
+    mark = db.Column(db.Integer, nullable=False)
+    upvotes = db.Column(db.Integer)
+    downvotes = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<Opinion {} from {}>'.format(self.id, self.client)
