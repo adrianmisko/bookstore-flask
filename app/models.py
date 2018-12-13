@@ -15,14 +15,15 @@ class Book(db.Model):
     tags = db.relationship('Tag', secondary='taggings', backref='books', lazy='joined')
     review = db.relationship('Review', backref='book', lazy='dynamic')
     authors_names = db.relationship('AuthorName', secondary='authorships', backref='books', lazy='joined')
-
+    genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='joined')
+    publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='joined')
 
     @staticmethod
     def get_featured():
-        return Book.query.filter(Book.is_featured == True).all()
+        return Book.query.filter(Book.is_featured).all()
 
     def __repr__(self):
-        return '<Book {}>'.format(self.title)
+        return '<Book \'{}\'>'.format(self.title)
 
 
 class Cover(db.Model):
@@ -30,7 +31,7 @@ class Cover(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), index=True)
 
     def __repr__(self):
-        return '<Cover {}>'.format(self.path)
+        return '<Cover \'{}\'>'.format(self.path[int(len(self.path)/2):])
 
 
 class ProductPricing(db.Model):
@@ -43,14 +44,14 @@ class ProductPricing(db.Model):
     max_discount_amount = db.Column(db.Numeric(11, 2))
 
     def __repr__(self):
-        return '<Product pricing {}: {}>'.format(self.book_id, self.price)
+        return '<Product pricing book_id: {}, price: {}>'.format(self.book_id, self.price)
 
 
 class Tag(db.Model):
     tag = db.Column(db.String(64), primary_key=True)
 
     def __repr__(self):
-        return '<Tag {}>'.format(self.tag)
+        return '<Tag \'{}\'>'.format(self.tag)
 
 
 taggings = db.Table('taggings',
@@ -69,7 +70,7 @@ class Review(db.Model):
     downvotes = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return '<Review {}: {}>'.format(self.book_id, self.author)
+        return '<Review book_id: {}, author: \'{}\'>'.format(self.book_id, self.author)
 
 
 class AuthorName(db.Model):
@@ -78,11 +79,11 @@ class AuthorName(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
 
     def __repr__(self):
-        return '<AuthorName {}>'.format(self.name)
+        return '<AuthorName \'{}\'>'.format(self.name)
 
 
 authorships = db.Table('authorships',
-    db.Column('id', db.Integer, db.ForeignKey('AuthorName.id'), primary_key=True),
+    db.Column('id', db.Integer, db.ForeignKey('author_name.id'), primary_key=True),
     db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True),
     db.Column('author_order', db.Integer)
 )
@@ -93,3 +94,55 @@ class Author(db.Model):
     real_name = db.Column(db.String(128), nullable=False, index=True)
 
     names = db.relationship('AuthorName', backref='owner', lazy='dynamic')
+
+    def __repr__(self):
+        return '<Author \'{}\'}>'.format(self.real_name)
+
+
+class Genre(db.Model):
+    name = db.Column(db.String(32), primary_key=True)
+
+    discounts = db.relationship('CategoryDiscount', secondary='discounts_genres_association',
+                                backref='genres', lazy='joined')
+
+    def __repr__(self):
+        return '<Genre \'{}\'>'.format(self.name)
+
+
+books_genres = db.Table('books_genres',
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True),
+    db.Column('genre_name', db.String(32), db.ForeignKey('genre.name'), primary_key=True),
+)
+
+
+class CategoryDiscount(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    discount_value = db.Column(db.Numeric(11, 2))
+    discount_percent = db.Column(db.Integer)
+    valid_from = db.Column(db.DateTime, index=True)
+    valid_until = db.Column(db.DateTime, index=True)
+    min_order_value = db.Column(db.Numeric(11, 2))
+    max_discount_amount = db.Column(db.Numeric(11, 2))
+
+    def __repr__(self):
+        return '<Discount for genres \'{}\' valid until \'{}\'>'.format(self.genres, self.valid_until)
+
+
+discounts_genres_association = db.Table('discounts_genres',
+    category_discount_id = db.Column('category_discount_id', db.Integer,
+                                     db.ForeignKey('category_discount.id'), primary_key=True),
+    genre_name = db.Column('genre_name', db.String(32), db.ForeignKey('genre.name'), primary_key=True)
+)
+
+
+class Publisher(db.Model):
+    name = db.Column(db.String(128), primary_key=True)
+
+    def __repr__(self):
+        return '<Publisher \'{}\'>'.format(self.name)
+
+
+publishers_books = db.Table('publishers_books',
+    publisher_name = db.Column('publisher_name', db.String(128), db.ForeignKey('publisher.name'), primary_key=True),
+    book_id = db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True)
+)
