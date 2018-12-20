@@ -1,5 +1,5 @@
 from app import db
-
+from app import ma
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,9 +11,9 @@ class Book(db.Model):
     is_featured = db.Column(db.Boolean, index=True, nullable=False)
 
     cover = db.relationship('Cover', backref='book', lazy='select')
-    product_pricing = db.relationship('ProductPricing', backref='book', lazy='select')
+    product_pricings = db.relationship('ProductPricing', backref='book', lazy='select')
     tags = db.relationship('Tag', secondary='taggings', backref='books', lazy='joined')
-    review = db.relationship('Review', backref='book', lazy='select')
+    reviews = db.relationship('Review', backref='book', lazy='select')
     authors_names = db.relationship('AuthorName', secondary='authorships', backref='books', lazy='joined')
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='joined')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='joined')
@@ -233,3 +233,4 @@ class Opinion(db.Model):
 
     def __repr__(self):
         return '<Opinion {} from {}>'.format(self.id, self.client)
+
