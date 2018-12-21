@@ -1,1 +1,1 @@
-web: flask db upgrade; gunicorn bookstore-flask:app
+web: flask db upgrade; gunicorn bookstore:app
