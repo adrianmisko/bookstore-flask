@@ -11,7 +11,7 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 ma = Marshmallow(app)
-heroku = Heroku
+heroku = Heroku(app)
 CORS(app)
 
 from app import routes, models
