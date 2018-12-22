@@ -2,7 +2,6 @@ alembic==1.0.5
 Click==7.0
 Flask==1.0.2
 Flask-Cors==3.0.7
-flask-heroku==0.1.9
 flask-marshmallow==0.9.0
 Flask-Migrate==2.3.1
 Flask-SQLAlchemy==2.3.2
@@ -16,6 +15,7 @@ marshmallow-sqlalchemy==0.15.0
 psycopg2-binary==2.7.6.1
 python-dateutil==2.7.5
 python-editor==1.0.3
-six==1.11.0
-SQLAlchemy==1.2.14
+simplejson==3.16.0
+six==1.12.0
+SQLAlchemy==1.2.15
 Werkzeug==0.14.1
