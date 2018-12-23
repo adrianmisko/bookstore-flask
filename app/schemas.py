@@ -16,3 +16,4 @@ class BookSchema(ma.ModelSchema):
 
 author_name_schema = AuthorNameSchema()
 book_schema = BookSchema()
+books_schema = BookSchema(many=True)

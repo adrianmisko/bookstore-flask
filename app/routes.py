@@ -9,11 +9,14 @@ def index():
     return "Hello, World!"
 
 
+@app.route('/api/books', methods=['GET'])
+def get_books():
+    return jsonify(books_schema.dump(Book.query.all()))
+
+
 @app.route('/api/books/<id>', methods=['GET'])
 def get_book_by_id(id):
-    book = Book.query.filter_by(id=id).first()
-    result = book_schema.jsonify(book)
-    return result
+    return book_schema.jsonify(Book.query.filter_by(id=id).first())
 
 
 @app.route('/api/users/<id>/orders')
