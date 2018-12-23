@@ -28,4 +28,4 @@ def new_user():
     client.hash_password(password)
     db.session.add(client)
     db.session.commit()
-    return jsonify({'username': client.username}), 201, {'Location': url_for('get_user', id=client.id, _external=True)}
+    return jsonify({'email': client.email}), 201, {'Location': url_for('get_user', id=client.id, _external=True)}
