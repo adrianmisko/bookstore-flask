@@ -1,4 +1,5 @@
 from app.models import *
+from app import ma
 
 
 class AuthorNameSchema(ma.ModelSchema):
@@ -8,10 +9,8 @@ class AuthorNameSchema(ma.ModelSchema):
 
 
 class BookSchema(ma.ModelSchema):
-
     class Meta:
         model = Book
-
     authors_names = ma.Nested(AuthorNameSchema, many=True)
 
 

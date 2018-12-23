@@ -13,4 +13,3 @@ ma = Marshmallow(app)
 CORS(app)
 
 from app import routes, models
-

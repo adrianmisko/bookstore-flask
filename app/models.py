@@ -1,5 +1,6 @@
 from app import db
-from app import ma
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -178,7 +179,6 @@ class Order(db.Model):
     delivery_method = db.relationship('DeliveryMethod', lazy='joined')
     payment_method = db.relationship('PaymentMethod', lazy='joined')
 
-
     def __repr__(self):
         return '<Order {} on {}>'.format(self.id, self.order_date)
 
@@ -214,10 +214,17 @@ class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
     surname = db.Column(db.String(128), nullable=False, index=True)
-    phone_number = db.Column(db.Integer, nullable=False, unique=True, index=True)
+    phone_number = db.Column(db.String(32), nullable=False, unique=True, index=True)
     email = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(128), nullable=False)
 
     opinions = db.relationship('Opinion', backref='client', lazy='joined')
+
+    def hash_password(self, password):
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256:2000')
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return '<Client \'{} {} {}\'>'.format(self.name, self.surname, self.email)
