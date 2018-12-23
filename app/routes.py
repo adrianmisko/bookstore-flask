@@ -2,6 +2,7 @@ from app import app, auth
 from app.models import *
 from app.schemas import *
 from flask import request, abort, jsonify, url_for
+from app.utils import *
 
 
 @app.route('/')
@@ -17,10 +18,10 @@ def get_book_by_id(id):
     return result
 
 
+@app.route('/api/users/<id>/orders')
 @auth.login_required
-@app.route('api/users/<id>/orders')
 def get_users_orders(id):
-    print('orders' + id)
+    return jsonify({"ok": "ok"})
 
 
 @app.route('/api/users', methods=['POST'])
