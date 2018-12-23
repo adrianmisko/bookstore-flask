@@ -1,4 +1,4 @@
-from app import app
+from app import app, auth
 from app.models import *
 from app.schemas import *
 from flask import request, abort, jsonify, url_for
@@ -17,6 +17,12 @@ def get_book_by_id(id):
     return result
 
 
+@auth.login_required
+@app.route('api/users/<id>/orders')
+def get_users_orders(id):
+    print('orders' + id)
+
+
 @app.route('/api/users', methods=['POST'])
 def new_user():
     email = request.json.get('email')
@@ -32,4 +38,4 @@ def new_user():
     client.hash_password(password)
     db.session.add(client)
     db.session.commit()
-    return jsonify({'email': client.email}), 201, {'Location': url_for('get_user', id=client.id, _external=True)}
+    return jsonify({'email': client.email}, 201)
