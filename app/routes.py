@@ -3,6 +3,7 @@ from app.models import *
 from app.schemas import *
 from flask import request, abort, jsonify, url_for
 
+
 @app.route('/')
 @app.route('/index')
 def index():

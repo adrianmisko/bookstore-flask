@@ -221,7 +221,7 @@ class Client(db.Model):
     opinions = db.relationship('Opinion', backref='client', lazy='joined')
 
     def hash_password(self, password):
-        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256:2000')
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256:10000')
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
