@@ -21,11 +21,14 @@ def get_book_by_id(id):
 def new_user():
     email = request.json.get('email')
     password = request.json.get('password')
+    phone_number = request.json.get('phone number')
+    name = request.json.get('surname')
+    surname = request.json.get('name')
     if email is None or password is None:
         abort(400)
     if Client.query.filter_by(email=email).first() is not None:
         abort(400)
-    client = Client(name='placeholder', surname='placeholder', phone_number='1', email=email)
+    client = Client(name=name, surname=surname, phone_number=phone_number, email=email)
     client.hash_password(password)
     db.session.add(client)
     db.session.commit()
