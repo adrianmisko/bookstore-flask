@@ -5,7 +5,7 @@ from app import ma
 class AuthorNameSchema(ma.ModelSchema):
     class Meta:
         model = AuthorName
-        exclude = ('id',)
+        fields = ('name',)
 
 
 class BookSchema(ma.ModelSchema):
