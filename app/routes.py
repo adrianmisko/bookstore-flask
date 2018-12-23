@@ -1,7 +1,5 @@
-from app import app, auth
-from app.models import *
 from app.schemas import *
-from flask import request, abort, jsonify, url_for
+from flask import request, abort, jsonify
 from app.utils import *
 
 
@@ -21,7 +19,16 @@ def get_book_by_id(id):
 @app.route('/api/users/<id>/orders')
 @auth.login_required
 def get_users_orders(id):
+    if g.client.id != int(id):
+        return jsonify({"nie twoje": "nie twoje"})
     return jsonify({"ok": "ok"})
+
+
+@app.route('/api/token')
+@auth.login_required
+def get_auth_token():
+    token = g.client.generate_auth_token()
+    return jsonify({'token': token.decode('ascii')})
 
 
 @app.route('/api/users', methods=['POST'])

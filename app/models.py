@@ -1,5 +1,6 @@
-from app import db
+from app import db, app
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
 
 class Book(db.Model):
@@ -18,7 +19,6 @@ class Book(db.Model):
     authors_names = db.relationship('AuthorName', secondary='authorships', backref='books', lazy='joined')
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='joined')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='joined')
-
 
     @staticmethod
     def get_featured():
@@ -219,6 +219,21 @@ class Client(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
 
     opinions = db.relationship('Opinion', backref='client', lazy='joined')
+
+    def generate_auth_token(self, expiration=300):
+        s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None
+        except BadSignature:
+            return None
+        return Client.query.get(data['id'])
 
     def hash_password(self, password):
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256:10000')
