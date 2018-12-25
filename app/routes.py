@@ -23,8 +23,8 @@ def get_book_by_id(id):
 @auth.login_required
 def get_users_orders(id):
     if g.client.id != int(id):
-        return jsonify({"nie twoje": "nie twoje"})
-    return jsonify({"ok": "ok"})
+        return jsonify({"Error": "You aren't permitted to see get this resource"})
+    return jsonify({"Status": "200 OK"})
 
 
 @app.route('/api/token')
@@ -34,7 +34,7 @@ def get_auth_token():
     return jsonify({'token': token.decode('ascii')})
 
 
-@app.route('/api/users', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def new_user():
     email = request.json.get('email')
     password = request.json.get('password')
