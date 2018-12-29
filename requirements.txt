@@ -1,5 +1,6 @@
 alembic==1.0.5
 Click==7.0
+elasticsearch==6.3.1
 Flask==1.0.2
 Flask-Cors==3.0.7
 Flask-HTTPAuth==3.2.4
@@ -19,4 +20,5 @@ python-editor==1.0.3
 simplejson==3.16.0
 six==1.12.0
 SQLAlchemy==1.2.15
+urllib3==1.24.1
 Werkzeug==0.14.1

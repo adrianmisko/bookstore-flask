@@ -35,7 +35,15 @@ class ClientSchema(ma.ModelSchema):
         return client
 
 
+class BookSearchableSchema(ma.ModelSchema):
+    class Meta:
+        model = Book
+        fields = Book.__searchable__
+    authors_names = ma.Nested(AuthorNameSchema, many=True)
+
+
 author_name_schema = AuthorNameSchema()
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
-clinet_schema = ClientSchema()
+client_schema = ClientSchema()
+book_searchable_schema = BookSearchableSchema()

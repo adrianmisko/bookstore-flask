@@ -37,7 +37,7 @@ def get_auth_token():
 @app.route('/api/register', methods=['POST'])
 def try_add_client():
     try:
-        client = clinet_schema.load(request.json).data
+        client = client_schema.load(request.json).data
         print(client)
         db.session.add(client)
         db.session.commit()
