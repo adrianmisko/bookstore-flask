@@ -12,7 +12,13 @@ def index():
 
 @app.route('/api/books', methods=['GET'])
 def get_books():
-    return jsonify(books_schema.dump(Book.query.all()))
+    search_by = request.args.get('search')
+    if search_by is None:
+        books = Book.query.all()
+        return jsonify(books_schema.dump(books)), 200
+    else:
+        books = Book.search(search_by)
+        return jsonify(books_schema.dump(books)), 200
 
 
 @app.route('/api/books/<int:id>', methods=['GET'])
@@ -32,7 +38,7 @@ def get_users_orders(id):
 @auth.login_required
 def get_auth_token():
     token = g.client.generate_auth_token()
-    return jsonify({'token': token.decode('ascii')})
+    return jsonify({'token': token.decode('ascii')}), 200
 
 
 @app.route('/api/register', methods=['POST'])

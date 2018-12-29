@@ -44,7 +44,6 @@ class BookSearchableSchema(ma.ModelSchema):
     authors_names = ma.Nested(AuthorNameSchema, many=True)
 
 
-
 author_name_schema = AuthorNameSchema()
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
