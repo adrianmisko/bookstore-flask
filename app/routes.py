@@ -17,8 +17,8 @@ def get_books():
         books = Book.query.all()
         return jsonify(books_schema.dump(books).data), 200
     else:
-        books = Book.search(search_by)
-        return jsonify(books_schema.dump(books).data), 200
+        books, found_total = Book.search(search_by)
+        return jsonify(books_schema.dump(books.all()).data), 200
 
 
 @app.route('/api/books/<int:id>', methods=['GET'])
