@@ -6,6 +6,7 @@ from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_httpauth import HTTPBasicAuth
 from elasticsearch import Elasticsearch
+import certifi
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -13,7 +14,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 ma = Marshmallow(app)
 auth = HTTPBasicAuth()
-app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']])
+app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']], use_ssl=True, ca_certs=certifi.where())
 CORS(app)
 
 from app import routes, models
