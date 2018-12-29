@@ -24,8 +24,8 @@ def get_book_by_id(id):
 @auth.login_required
 def get_users_orders(id):
     if g.client.id != id:
-        return jsonify({'Error': 'You aren\'t permitted to see get this resource'})
-    return jsonify({'Status': '200 OK'})
+        return jsonify({'Error': 'You aren\'t permitted to see get this resource'}), 403
+    return jsonify({'Status': '200 OK'}), 200
 
 
 @app.route('/api/token', methods=['POST'])
@@ -38,8 +38,8 @@ def get_auth_token():
 @app.route('/api/register', methods=['POST'])
 def try_add_client():
     try:
-        client = clinet_schema.load(request.json).data
-        print(client)
+        registration_client_schema.validate(request.json)
+        client = client_schema.load(request.json).data
         db.session.add(client)
         db.session.commit()
         return jsonify({'email': client.email}), 201
