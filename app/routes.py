@@ -1,7 +1,7 @@
 from app.schemas import *
 from flask import request, abort, jsonify
 from app.utils import *
-
+from marshmallow import ValidationError
 
 @app.route('/')
 @app.route('/index')
@@ -34,19 +34,13 @@ def get_auth_token():
     return jsonify({'token': token.decode('ascii')})
 
 
-@app.route('/register', methods=['POST'])
-def new_user():
-    email = request.json.get('email')
-    password = request.json.get('password')
-    phone_number = request.json.get('phone number')
-    name = request.json.get('surname')
-    surname = request.json.get('name')
-    if email is None or password is None:
-        abort(400)
-    if Client.query.filter_by(email=email).first() is not None:
-        abort(400)
-    client = Client(name=name, surname=surname, phone_number=phone_number, email=email)
-    client.hash_password(password)
-    db.session.add(client)
-    db.session.commit()
-    return jsonify({'email': client.email}, 201)
+@app.route('/api/register', methods=['POST'])
+def try_add_client():
+    try:
+        client = clinet_schema.load(request.json).data
+        print(client)
+        db.session.add(client)
+        db.session.commit()
+        return jsonify({'ok': 'ok'})
+    except ValidationError as err:
+        return jsonify(err.messages)
