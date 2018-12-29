@@ -249,7 +249,7 @@ class Location(db.Model):
     street_number = db.Column(db.String(8), nullable=False)
     zip_code = db.Column(db.String(64), nullable=False, index=True)
 
-    __table_args__ =  (db.Index('location_index', place, street_name, street_number), )
+    __table_args__ = (db.Index('location_index', place, street_name, street_number), )
 
     def __repr__(self):
         return '<Location {} {} {} {}>'.format(self.zip_code, self.place, self.street_name, self.street_number)

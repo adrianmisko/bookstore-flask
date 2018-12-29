@@ -1,7 +1,9 @@
 from app.models import *
 from app import ma
-from marshmallow import post_load, validates, ValidationError
+from marshmallow import post_load, fields
 from flask import request
+from app.validatros import *
+
 
 class AuthorNameSchema(ma.ModelSchema):
     class Meta:
@@ -20,19 +22,19 @@ class ClientSchema(ma.ModelSchema):
         model = Client
         strict = True
         exclude = ('id', 'password_hash', 'opinions')
-
-    @validates('email')
-    def validate_email(self, email):
-        if email is None or Client.query.filter_by(email=email).first() is not None:
-            raise ValidationError('email wrong')
+    email = fields.Email(validate=validate_email, required=True)
 
     @post_load
     def set_password_hash(self, client):
         password = request.json.get('password')
-        if password is None:
-            raise ValidationError('password bad')
         client.hash_password(password)
         return client
+
+
+class RegistrationClientSchema(ClientSchema):
+    class Meta:
+        strict = True
+    password = fields.String(required=True, validate=validate_password)
 
 
 class BookSearchableSchema(ma.ModelSchema):
@@ -42,8 +44,10 @@ class BookSearchableSchema(ma.ModelSchema):
     authors_names = ma.Nested(AuthorNameSchema, many=True)
 
 
+
 author_name_schema = AuthorNameSchema()
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
 client_schema = ClientSchema()
+registration_client_schema = RegistrationClientSchema()
 book_searchable_schema = BookSearchableSchema()
