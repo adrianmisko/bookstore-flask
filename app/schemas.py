@@ -36,6 +36,12 @@ class RegistrationClientSchema(ClientSchema):
     password = fields.String(required=True, validate=validate_password)
 
 
+class EmailValidator(ma.Schema):
+    class Meta:
+        strict = True
+    email = fields.Email(required=True, validate=validate_email)
+
+
 class BookSearchableSchema(ma.ModelSchema):
     class Meta:
         model = Book
@@ -55,5 +61,6 @@ book_schema = BookSchema()
 books_schema = BookSchema(many=True)
 client_schema = ClientSchema()
 registration_client_schema = RegistrationClientSchema()
+email_validator = EmailValidator()
 book_searchable_schema = BookSearchableSchema()
 items_ordered_schema =  ItemsOrderedSchema(many=True)
