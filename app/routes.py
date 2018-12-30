@@ -46,8 +46,6 @@ def make_order(id):
         return jsonify(err.messages), 400
 
 
-
-
 @app.route('/api/token', methods=['POST'])
 @auth.login_required
 def get_auth_token():
@@ -70,7 +68,7 @@ def register():
 @app.route('/api/emails/validate', methods=['POST'])
 def check_if_email_is_taken():
     try:
-        email_validator.validate(request.json.get('email'))
+        email_validator.validate(request.json)
         return jsonify({'valid e-mail': True}), 200
     except ValidationError as err:
         return jsonify(err.messages), 400

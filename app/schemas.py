@@ -39,7 +39,7 @@ class RegistrationClientSchema(ClientSchema):
 class EmailValidator(ma.Schema):
     class Meta:
         strict = True
-    email = fields.Email(required=True, validate=validate_email)
+    email = fields.Email(validate=validate_email, required=True)
 
 
 class BookSearchableSchema(ma.ModelSchema):
@@ -53,7 +53,8 @@ class ItemsOrderedSchema(ma.Schema):
     class Meta:
         strict = True
     id = fields.Integer(required=True, validate=validate.Range(min=1, error='Invalid ID'))
-    quantity = fields.Integer(required=True, validate=validate.Range(min=1, max=99, error='Quantity must be greater than 0 and less than 100'))
+    quantity = fields.Integer(required=True, validate=validate.Range(min=1, max=99,
+                              error='Quantity must be greater than 0 and less than 100'))
 
 
 author_name_schema = AuthorNameSchema()
@@ -63,4 +64,4 @@ client_schema = ClientSchema()
 registration_client_schema = RegistrationClientSchema()
 email_validator = EmailValidator()
 book_searchable_schema = BookSearchableSchema()
-items_ordered_schema =  ItemsOrderedSchema(many=True)
+items_ordered_schema = ItemsOrderedSchema(many=True)
