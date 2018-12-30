@@ -26,12 +26,26 @@ def get_book_by_id(id):
     return book_schema.jsonify(Book.query.filter_by(id=id).first()), 200
 
 
-@app.route('/api/users/<int:id>/orders')
+@app.route('/api/users/<int:id>/orders', methods=['GET'])
 @auth.login_required
 def get_users_orders(id):
     if g.client.id != id:
         return jsonify({'Error': 'You aren\'t permitted to see get this resource'}), 403
     return jsonify({'Status': '200 OK'}), 200
+
+
+@app.route('/api/users/<int:id>/orders', methods=['POST'])
+def make_order(id):
+    try:
+        order = Order()
+        items = [ItemOrdered(order_id=order.id, book_id=item.get('id'), quantity=item.get('quantity'), price=caclulate_price(item.get('id'), item.get('quantity')))\
+                 for item in items_ordered_schema.load(request.json.get('items')).data]
+        client = Client.query.filter_by(id=id).first()
+        return jsonify({'ok': items[0].price}), 200
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+
 
 
 @app.route('/api/token', methods=['POST'])
@@ -42,7 +56,7 @@ def get_auth_token():
 
 
 @app.route('/api/register', methods=['POST'])
-def try_add_client():
+def register():
     try:
         registration_client_schema.validate(request.json)
         client = client_schema.load(request.json).data
@@ -50,4 +64,4 @@ def try_add_client():
         db.session.commit()
         return jsonify({'email': client.email}), 201
     except ValidationError as err:
-        return jsonify(err.messages)
+        return jsonify(err.messages), 400

@@ -2,7 +2,7 @@ from app import db, app
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from app.search import add_to_index, remove_from_index, query_index
-
+import datetime
 
 class SearchableMixin(object):
     @classmethod
@@ -214,9 +214,9 @@ class Order(db.Model):
     _location_fk = db.Column(db.Integer, db.ForeignKey('location.id'), index=True)
     payment_method_name = db.Column(db.String(64), db.ForeignKey('payment_method.name'), index=True)
     delivery_method_name = db.Column(db.String(64), db.ForeignKey('delivery_method.name'), index=True)
-    payment_id = db.Column(db.Integer, nullable=False, index=True)
-    order_date = db.Column(db.DateTime, nullable=False, index=True)
-    payment_date = db.Column(db.DateTime, nullable=False, index=True)
+    payment_id = db.Column(db.Integer, nullable=True, index=True)
+    order_date = db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
+    payment_date = db.Column(db.DateTime, nullable=True, index=True)
     total_price = db.Column(db.Numeric, nullable=False)
 
     items_ordered = db.relationship('ItemOrdered', backref='order', lazy='joined')

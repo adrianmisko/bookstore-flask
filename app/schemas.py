@@ -1,6 +1,5 @@
-from app.models import *
 from app import ma
-from marshmallow import post_load, fields
+from marshmallow import post_load, fields, validate
 from flask import request
 from app.validatros import *
 
@@ -44,9 +43,17 @@ class BookSearchableSchema(ma.ModelSchema):
     authors_names = ma.Nested(AuthorNameSchema, many=True)
 
 
+class ItemsOrderedSchema(ma.Schema):
+    class Meta:
+        strict = True
+    id = fields.Integer(required=True, validate=validate.Range(min=1, error='Invalid ID'))
+    quantity = fields.Integer(required=True, validate=validate.Range(min=1, max=99, error='Quantity must be greater than 0 and less than 100'))
+
+
 author_name_schema = AuthorNameSchema()
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
 client_schema = ClientSchema()
 registration_client_schema = RegistrationClientSchema()
 book_searchable_schema = BookSearchableSchema()
+items_ordered_schema =  ItemsOrderedSchema(many=True)
