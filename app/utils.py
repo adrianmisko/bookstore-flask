@@ -1,6 +1,7 @@
 from app import auth
-from app.models import Client
 from flask import g
+from app.models import *
+from decimal import Decimal
 
 
 @auth.verify_password
@@ -12,3 +13,7 @@ def verify_password(username_or_token, password):
             return False
     g.client = client
     return True
+
+
+def caclulate_price(item_id, quantity):
+    return Book.query.filter_by(id=item_id).first().base_price * Decimal(quantity)
