@@ -67,7 +67,7 @@ def register():
         return jsonify(err.messages), 400
 
 
-@app.route('api/emails/validate', methods=['POST'])
+@app.route('/api/emails/validate', methods=['POST'])
 def check_if_email_is_taken():
     try:
         email_validator.validate(request.json.get('email'))
