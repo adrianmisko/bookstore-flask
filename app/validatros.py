@@ -23,7 +23,7 @@ def validate_password(password):
 def validate_phone_number(number):
     if number is None or number == '':
         raise ValidationError('Phone number field is required')
-    elif all(x.isdigit() for x in number):
+    elif not all(x.isdigit() for x in number):
         raise ValidationError('Phone number cannot include non-numeric characters')
     elif Client.query.filter_by(phone_number=number).first() is not None:
         raise ValidationError('This number is already in use')
