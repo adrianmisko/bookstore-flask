@@ -74,7 +74,7 @@ def check_if_email_is_valid():
         return jsonify(err.messages), 400
 
 
-@app.route('api/phone_number/validate', methods=['POST'])
+@app.route('/api/phone_number/validate', methods=['POST'])
 def check_if_phone_number_is_valid():
     try:
         phone_number_validator.validate(request.json)
