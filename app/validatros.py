@@ -16,7 +16,7 @@ def validate_password(password):
              lambda s: len(s) >= 8]
     if password is None or password == '':
         raise ValidationError('Password field is required')
-    elif all(rule(password) for rule in rules):
+    elif not all(rule(password) for rule in rules):
         raise ValidationError('Password needs to have at least 8 characters including one capital letter and one number')
 
 
