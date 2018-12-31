@@ -84,7 +84,6 @@ class PhoneNumberValidator(ma.Schema):
     phone_number = fields.String(required=True, validate=validate_phone_number)
 
 
-author_name_schema = AuthorNameSchema()
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
 client_schema = ClientSchema()
