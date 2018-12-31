@@ -66,9 +66,18 @@ def register():
 
 
 @app.route('/api/emails/validate', methods=['POST'])
-def check_if_email_is_taken():
+def check_if_email_is_valid():
     try:
         email_validator.validate(request.json)
         return jsonify({'valid e-mail': True}), 200
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+
+@app.route('api/phone_number/validate', methods=['POST'])
+def check_if_phone_number_is_valid():
+    try:
+        phone_number_validator.validate(request.json)
+        return jsonify({'valid phone number': True}), 200
     except ValidationError as err:
         return jsonify(err.messages), 400

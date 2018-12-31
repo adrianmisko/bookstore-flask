@@ -57,6 +57,12 @@ class ItemsOrderedSchema(ma.Schema):
                               error='Quantity must be greater than 0 and less than 100'))
 
 
+class PhoneNumberValidator(ma.Schema):
+    class Meta:
+        strict = True
+    phone_number = fields.String(required=True, validate=validate_phone_number)
+
+
 author_name_schema = AuthorNameSchema()
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
@@ -65,3 +71,4 @@ registration_client_schema = RegistrationClientSchema()
 email_validator = EmailValidator()
 book_searchable_schema = BookSearchableSchema()
 items_ordered_schema = ItemsOrderedSchema(many=True)
+phone_number_validator = PhoneNumberValidator()
