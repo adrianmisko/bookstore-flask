@@ -17,7 +17,8 @@ def get_books():
         books = Book.query.all()
         return jsonify(books_schema.dump(books).data), 200
     else:
-        books, found_total = Book.search(search_by, page=int(request.args.get('page')))
+        page = request.args.get('page') or 1
+        books, found_total = Book.search(search_by, page=page)
         return jsonify(books_schema.dump(books.all()).data), 200
 
 
@@ -38,8 +39,9 @@ def get_users_orders(id):
 def make_order(id):
     try:
         order = Order()
-        items = [ItemOrdered(order_id=order.id, book_id=item.get('id'), quantity=item.get('quantity'), price=caclulate_price(item.get('id'), item.get('quantity')))\
-                 for item in items_ordered_schema.load(request.json.get('items')).data]
+        items = [ItemOrdered(order_id=order.id, book_id=item.get('id'), quantity=item.get('quantity'),
+                             price=calculate_price(item.get('id'), item.get('quantity')))
+                             for item in items_ordered_schema.load(request.json.get('items')).data]
         client = Client.query.filter_by(id=id).first()
         return jsonify({'ok': items[0].price}), 200
     except ValidationError as err:

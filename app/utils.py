@@ -15,5 +15,5 @@ def verify_password(username_or_token, password):
     return True
 
 
-def caclulate_price(item_id, quantity):
+def calculate_price(item_id, quantity):
     return Book.query.filter_by(id=item_id).first().base_price * Decimal(quantity)
