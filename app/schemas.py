@@ -7,13 +7,34 @@ from app.validatros import *
 class AuthorNameSchema(ma.ModelSchema):
     class Meta:
         model = AuthorName
-        fields = ('name',)
+        fields = ('name', )
+
+
+class PublisherSchema(ma.ModelSchema):
+    class Meta:
+        model = Publisher
+        fields = ('name', )
+
+
+class TagSchema(ma.ModelSchema):
+    class Meta:
+        model = Tag
+        fields = ('tag', )
+
+
+class GenreSchema(ma.ModelSchema):
+    class Meta:
+        model = Genre
+        fields = ('name', )
 
 
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
     authors_names = ma.Nested(AuthorNameSchema, many=True)
+    publishers = ma.Nested(PublisherSchema, many=True)
+    genres = ma.Nested(GenreSchema, many=True)
+    tags = ma.Nested(TagSchema, many=True)
 
 
 class ClientSchema(ma.ModelSchema):

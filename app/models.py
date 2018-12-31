@@ -4,6 +4,7 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSign
 from app.search import add_to_index, remove_from_index, query_index
 import datetime
 
+
 class SearchableMixin(object):
     @classmethod
     def search(cls, expression, page=1, per_page=10):
