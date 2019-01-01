@@ -68,6 +68,9 @@ class BookSearchableSchema(ma.ModelSchema):
         model = Book
         fields = Book.__searchable__
     authors_names = ma.Nested(AuthorNameSchema, many=True)
+    publishers = ma.Nested(PublisherSchema, many=True)
+    genres = ma.Nested(GenreSchema, many=True)
+    tags = ma.Nested(TagSchema, many=True)
 
 
 class ItemsOrderedSchema(ma.Schema):

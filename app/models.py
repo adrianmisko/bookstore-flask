@@ -53,7 +53,7 @@ class Book(SearchableMixin, db.Model):
     title = db.Column(db.String(64), index=True, nullable=False)
     release_date = db.Column(db.Date)
     description = db.Column(db.String(2048))
-    base_price = db.Column(db.Numeric(11,2), nullable=False)
+    base_price = db.Column(db.Numeric(11, 2), nullable=False)
     number_in_stock = db.Column(db.Integer, nullable=False)
     is_featured = db.Column(db.Boolean, index=True, nullable=False)
 
