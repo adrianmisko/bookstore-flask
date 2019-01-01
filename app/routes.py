@@ -42,7 +42,7 @@ def make_order(id):
         items = [ItemOrdered(order_id=order.id, book_id=item.get('id'), quantity=item.get('quantity'),
                              price=calculate_price(item.get('id'), item.get('quantity')))
                              for item in items_ordered_schema.load(request.json.get('items')).data]
-        client = Client.query.filter_by(id=id).first()
+        order.client = Client.query.filter_by(id=id).first()
         return jsonify({'ok': items[0].price}), 200
     except ValidationError as err:
         return jsonify(err.messages), 400
@@ -59,7 +59,7 @@ def get_auth_token():
 def register():
     try:
         registration_client_schema.validate(request.json)
-        client = client_schema.load(request.json).data
+        client = client_schema.load(request.json, validate=False).data
         db.session.add(client)
         db.session.commit()
         return jsonify({'email': client.email}), 201

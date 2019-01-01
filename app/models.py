@@ -57,19 +57,22 @@ class Book(SearchableMixin, db.Model):
     number_in_stock = db.Column(db.Integer, nullable=False)
     is_featured = db.Column(db.Boolean, index=True, nullable=False)
 
-    cover = db.relationship('Cover', backref='book', lazy='select')
-    product_pricings = db.relationship('ProductPricing', backref='book', lazy='select')
+    covers = db.relationship('Cover', backref='book', lazy='joined')
+    product_pricings = db.relationship('ProductPricing', backref='book', lazy='dynamic')
     tags = db.relationship('Tag', secondary='taggings', backref='books', lazy='joined')
-    reviews = db.relationship('Review', backref='book', lazy='select')
+    reviews = db.relationship('Review', backref='book', lazy='dynamic')
     authors_names = db.relationship('AuthorName', secondary='authorships', backref='books', lazy='joined')
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='joined')
-    publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='joined')
+    publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='dynamic')
 
     __searchable__ = ['title', 'genres', 'authors_names', 'publishers']
 
     @staticmethod
     def get_featured():
         return Book.query.filter(Book.is_featured).all()
+
+    def get_current_price():
+        return
 
     def __repr__(self):
         return '<Book \'{}\'>'.format(self.title)

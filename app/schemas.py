@@ -31,6 +31,30 @@ class GenreSchema(ma.ModelSchema):
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
+        fields = ('id', 'title', )
+    authors_names = ma.Nested(AuthorNameSchema, many=True)
+    tags = ma.Nested(TagSchema, many=True)
+    price = fields.Method('get_current_price')
+    cover = fields.Method('get_single_image')
+
+
+    def get_single_image(self, obj):
+        try:
+            return obj.covers[0]
+        except IndexError:
+            return []
+
+    def get_current_price(self, obj):
+        try:
+            return obj.product_pricing[-1]
+        except IndexError:
+            return obj.base_price
+
+
+class BookDetailsSchema(ma.ModelSchema):
+    class Meta:
+        model = Book
+        exclude = ()
     authors_names = ma.Nested(AuthorNameSchema, many=True)
     publishers = ma.Nested(PublisherSchema, many=True)
     genres = ma.Nested(GenreSchema, many=True)
