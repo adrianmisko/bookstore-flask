@@ -68,7 +68,7 @@ def get_auth_token():
 def register():
     try:
         registration_client_schema.validate(request.json)
-        client = client_schema.load(request.json, validate=False).data
+        client = client_schema.load(request.json).data
         db.session.add(client)
         db.session.commit()
         return jsonify({'email': client.email}), 201
