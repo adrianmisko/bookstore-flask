@@ -2,7 +2,7 @@ from app.schemas import *
 from flask import request, jsonify
 from app.utils import *
 from marshmallow import ValidationError
-from time import sleep
+
 
 @app.route('/')
 @app.route('/index')
@@ -27,7 +27,6 @@ def get_books():
 
 @app.route('/api/books/<int:id>', methods=['GET'])
 def get_book_by_id(id):
-    sleep(4)
     return book_schema.jsonify(Book.query.filter_by(id=id).first()), 200
 
 
