@@ -48,11 +48,12 @@ class BookSchema(ma.ModelSchema):
         try:
             return obj.covers[0].path
         except IndexError:
-            return []
+            return None
 
     def get_current_price(self, obj):
         try:
-            return obj.product_pricing[-1]
+            #return obj.product_pricing[-1].price
+            return 10
         except IndexError:
             return obj.base_price
 
@@ -61,6 +62,16 @@ class BookDetailsSchema(ma.ModelSchema):
     class Meta:
         model = Book
         exclude = ()
+    authors_names = ma.Nested(AuthorNameSchema, many=True)
+    publishers = ma.Nested(PublisherSchema, many=True)
+    genres = ma.Nested(GenreSchema, many=True)
+    tags = ma.Nested(TagSchema, many=True)
+
+
+class BookSearchableSchema(ma.ModelSchema):
+    class Meta:
+        model = Book
+        fields = Book.__searchable__
     authors_names = ma.Nested(AuthorNameSchema, many=True)
     publishers = ma.Nested(PublisherSchema, many=True)
     genres = ma.Nested(GenreSchema, many=True)
@@ -91,16 +102,6 @@ class EmailValidator(ma.Schema):
     class Meta:
         strict = True
     email = fields.Email(validate=validate_email, required=True)
-
-
-class BookSearchableSchema(ma.ModelSchema):
-    class Meta:
-        model = Book
-        fields = Book.__searchable__
-    authors_names = ma.Nested(AuthorNameSchema, many=True)
-    publishers = ma.Nested(PublisherSchema, many=True)
-    genres = ma.Nested(GenreSchema, many=True)
-    tags = ma.Nested(TagSchema, many=True)
 
 
 class ItemsOrderedSchema(ma.Schema):
