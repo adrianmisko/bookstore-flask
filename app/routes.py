@@ -14,6 +14,9 @@ def index():
 def get_books():
     search_by = request.args.get('search')
     if search_by is None:
+        author = request.args.get('author');
+        if author is not None:
+            pass
         books = Book.query.all()
         return jsonify(books_compact_schema.dump(books).data), 200
     else:

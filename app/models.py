@@ -50,6 +50,7 @@ db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 class Book(SearchableMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    ISBN = db.Column(db.String(13), index=True, unique=True)
     title = db.Column(db.String(64), index=True, nullable=False)
     release_date = db.Column(db.Date)
     description = db.Column(db.String(2048))
@@ -65,7 +66,7 @@ class Book(SearchableMixin, db.Model):
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='dynamic')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='dynamic')
 
-    __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors']
+    __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors', 'ISBN']
 
     @staticmethod
     def get_featured():
