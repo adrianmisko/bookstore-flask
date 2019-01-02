@@ -77,10 +77,11 @@ class BookSearchableSchema(ma.ModelSchema):
     publishers = ma.Nested(PublisherSchema, many=True)
     genres = ma.Nested(GenreSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
-    author = ma.Method('get_authors', many=True)
+    authors = ma.Method('get_authors', many=True)
 
     def get_authors(self, obj):
-        return obj.get_authors()
+        return [author.real_name for author in obj.get_authors()]
+
 
 class ClientSchema(ma.ModelSchema):
     class Meta:
