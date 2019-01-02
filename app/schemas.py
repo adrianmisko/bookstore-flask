@@ -43,7 +43,6 @@ class BookSchema(ma.ModelSchema):
     price = fields.Method('get_current_price')
     cover = fields.Method('get_single_image')
 
-
     def get_single_image(self, obj):
         try:
             return obj.covers[0].path
@@ -72,7 +71,10 @@ class BookSearchableSchema(ma.ModelSchema):
     publishers = ma.Nested(PublisherSchema, many=True)
     genres = ma.Nested(GenreSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
+    author = ma.Method('get_authors', many=True)
 
+    def get_authors(self, obj):
+        return obj.get_authors()
 
 class ClientSchema(ma.ModelSchema):
     class Meta:

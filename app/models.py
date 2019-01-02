@@ -65,11 +65,14 @@ class Book(SearchableMixin, db.Model):
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='joined')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='dynamic')
 
-    __searchable__ = ['title', 'genres', 'authors_names', 'publishers']
+    __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'author']
 
     @staticmethod
     def get_featured():
         return Book.query.filter(Book.is_featured).all()
+
+    def get_authors(self):
+        return [name.owner for name in self.authors_names]
 
     def __repr__(self):
         return '<Book \'{}\'>'.format(self.title)
