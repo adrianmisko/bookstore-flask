@@ -25,5 +25,7 @@ def validate_phone_number(number):
         raise ValidationError('Phone number field is required')
     elif not all(x.isdigit() for x in number):
         raise ValidationError('Phone number cannot include non-numeric characters')
+    elif len(number) > 32:
+        raise ValidationError('Phone number must have less than 32 numbers')
     elif Client.query.filter_by(phone_number=number).first() is not None:
         raise ValidationError('This number is already in use')
