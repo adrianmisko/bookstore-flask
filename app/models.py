@@ -71,9 +71,6 @@ class Book(SearchableMixin, db.Model):
     def get_featured():
         return Book.query.filter(Book.is_featured).all()
 
-    def get_current_price():
-        return
-
     def __repr__(self):
         return '<Book \'{}\'>'.format(self.title)
 
@@ -83,7 +80,7 @@ class Cover(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), index=True)
 
     def __repr__(self):
-        return '<Cover \'{}\'>'.format(self.path[int(len(self.path)/2):])
+        return '<Cover \'{}\'>'.format(self.path)
 
 
 class ProductPricing(db.Model):

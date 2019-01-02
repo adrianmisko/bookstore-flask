@@ -28,6 +28,12 @@ class GenreSchema(ma.ModelSchema):
         fields = ('name', )
 
 
+class CoverSchema(ma.ModelSchema):
+    class Meta:
+        model = Cover
+        fields = ('path', )
+
+
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
