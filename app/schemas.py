@@ -51,10 +51,7 @@ class BookSchema(ma.ModelSchema):
             return None
 
     def get_current_price(self, obj):
-        try:
-            return obj.product_pricing[0].price
-        except IndexError:
-            return obj.base_price
+        return obj.base_price
 
 
 class BookDetailsSchema(ma.ModelSchema):
