@@ -148,7 +148,7 @@ class Author(db.Model):
     names = db.relationship('AuthorName', backref='owner', lazy='dynamic')
 
     def __repr__(self):
-        return '<Author \'{}\'}>'.format(self.real_name)
+        return '<Author \'{}\'>'.format(self.real_name)
 
 
 class Genre(db.Model):
