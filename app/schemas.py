@@ -78,6 +78,12 @@ class BookSearchableSchema(ma.ModelSchema):
     authors = ma.Function(get_authors, many=True)
 
 
+class ReviewSchema(ma.ModelSchema):
+    class Meta:
+        model = Review
+        strict = True
+
+
 class ClientSchema(ma.ModelSchema):
     class Meta:
         model = Client
