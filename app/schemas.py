@@ -10,6 +10,12 @@ class AuthorNameSchema(ma.ModelSchema):
         fields = ('name', )
 
 
+class AuthorSchema(ma.ModelSchema):
+    class Meta:
+        model = Author
+        fields = ('real_name', )
+
+
 class PublisherSchema(ma.ModelSchema):
     class Meta:
         model = Publisher
