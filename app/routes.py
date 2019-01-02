@@ -15,11 +15,11 @@ def get_books():
     search_by = request.args.get('search')
     if search_by is None:
         books = Book.query.all()
-        return jsonify(books_schema.dump(books).data), 200
+        return jsonify(books_compact_schema.dump(books).data), 200
     else:
         page = request.args.get('page') or 1
         books, found_total = Book.search(search_by, page=page)
-        return jsonify(books_schema.dump(books.all()).data), 200
+        return jsonify(books_compact_schema.dump(books.all()).data), 200
 
 
 @app.route('/api/books/<int:id>', methods=['GET'])

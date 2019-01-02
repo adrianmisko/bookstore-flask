@@ -62,7 +62,7 @@ class Book(SearchableMixin, db.Model):
     tags = db.relationship('Tag', secondary='taggings', backref='books', lazy='joined')
     reviews = db.relationship('Review', backref='book', lazy='dynamic')
     authors_names = db.relationship('AuthorName', secondary='authorships', backref='books', lazy='joined')
-    genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='joined')
+    genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='dynamic')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='dynamic')
 
     __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors']

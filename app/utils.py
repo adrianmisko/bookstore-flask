@@ -17,3 +17,18 @@ def verify_password(username_or_token, password):
 
 def calculate_price(item_id, quantity):
     return Book.query.filter_by(id=item_id).first().base_price * Decimal(quantity)
+
+
+def get_single_image(obj):
+    try:
+        return obj.covers[0].path
+    except IndexError:
+        return None
+
+
+def get_current_price(obj):
+    return obj.base_price
+
+
+def get_authors(obj):
+    return [author.real_name for author in obj.get_authors()]

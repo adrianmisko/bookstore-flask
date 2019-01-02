@@ -2,85 +2,80 @@ from app import ma
 from marshmallow import post_load, fields, validate
 from flask import request
 from app.validatros import *
+from app.utils import *
 
 
 class AuthorNameSchema(ma.ModelSchema):
     class Meta:
         model = AuthorName
-        fields = ('name', )
+        fields = ('name',)
 
 
 class AuthorSchema(ma.ModelSchema):
     class Meta:
         model = Author
-        fields = ('real_name', )
+        fields = ('real_name',)
 
 
 class PublisherSchema(ma.ModelSchema):
     class Meta:
         model = Publisher
-        fields = ('name', )
+        fields = ('name',)
 
 
 class TagSchema(ma.ModelSchema):
     class Meta:
         model = Tag
-        fields = ('tag', )
+        fields = ('tag',)
 
 
 class GenreSchema(ma.ModelSchema):
     class Meta:
         model = Genre
-        fields = ('name', )
+        fields = ('name',)
 
 
 class CoverSchema(ma.ModelSchema):
     class Meta:
         model = Cover
-        fields = ('path', )
+        fields = ('path',)
+
+
+class BookCompactSchema(ma.ModelSchema):
+    class Meta:
+        model = Book
+        fields = ('id', 'title', 'authors_names', 'tags', 'price', 'cover')
+
+    authors_names = ma.Nested(AuthorNameSchema, many=True)
+    tags = ma.Nested(TagSchema, many=True)
+    price = fields.Function(get_current_price)
+    cover = fields.Function(get_single_image)
 
 
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
-        fields = ('id', 'title', 'authors_names', 'tags', 'price', 'cover')
-    authors_names = ma.Nested(AuthorNameSchema, many=True)
-    tags = ma.Nested(TagSchema, many=True)
-    price = fields.Method('get_current_price')
-    cover = fields.Method('get_single_image')
+        fields = ('id', 'title', 'authors_names', 'publishers', 'genres', 'price',
+                  'number_in_stock', 'is_featured', 'description', 'covers', 'tags')
 
-    def get_single_image(self, obj):
-        try:
-            return obj.covers[0].path
-        except IndexError:
-            return None
-
-    def get_current_price(self, obj):
-        return obj.base_price
-
-
-class BookDetailsSchema(ma.ModelSchema):
-    class Meta:
-        model = Book
-        exclude = ()
     authors_names = ma.Nested(AuthorNameSchema, many=True)
     publishers = ma.Nested(PublisherSchema, many=True)
     genres = ma.Nested(GenreSchema, many=True)
+    covers = ma.Nested(CoverSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
+    price = ma.Function(get_current_price)
 
 
 class BookSearchableSchema(ma.ModelSchema):
     class Meta:
         model = Book
         fields = Book.__searchable__
+
     authors_names = ma.Nested(AuthorNameSchema, many=True)
     publishers = ma.Nested(PublisherSchema, many=True)
     genres = ma.Nested(GenreSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
-    authors = ma.Method('get_authors', many=True)
-
-    def get_authors(self, obj):
-        return [author.real_name for author in obj.get_authors()]
+    authors = ma.Function(get_authors, many=True)
 
 
 class ClientSchema(ma.ModelSchema):
@@ -88,6 +83,7 @@ class ClientSchema(ma.ModelSchema):
         model = Client
         strict = True
         exclude = ('id', 'password_hash', 'opinions', 'name', 'surname')
+
     email = fields.Email(validate=validate_email, required=True)
 
     @post_load
@@ -100,31 +96,35 @@ class ClientSchema(ma.ModelSchema):
 class RegistrationClientSchema(ClientSchema):
     class Meta:
         strict = True
+
     password = fields.String(required=True, validate=validate_password)
 
 
 class EmailValidator(ma.Schema):
     class Meta:
         strict = True
+
     email = fields.Email(validate=validate_email, required=True)
 
 
 class ItemsOrderedSchema(ma.Schema):
     class Meta:
         strict = True
+
     id = fields.Integer(required=True, validate=validate.Range(min=1, error='Invalid ID'))
     quantity = fields.Integer(required=True, validate=validate.Range(min=1, max=99,
-                              error='Quantity must be greater than 0 and less than 100'))
+                                                                     error='Quantity must be greater than 0 and less than 100'))
 
 
 class PhoneNumberValidator(ma.Schema):
     class Meta:
         strict = True
+
     phone_number = fields.String(required=True, validate=validate_phone_number)
 
 
 book_schema = BookSchema()
-books_schema = BookSchema(many=True)
+books_compact_schema = BookCompactSchema(many=True)
 client_schema = ClientSchema()
 registration_client_schema = RegistrationClientSchema()
 email_validator = EmailValidator()
