@@ -27,6 +27,11 @@ def get_book_by_id(id):
     return book_schema.jsonify(Book.query.filter_by(id=id).first()), 200
 
 
+@app.route('/api/books/<int:id>/reviews', methods=['GET'])
+def get_reviews(id):
+    return reviews_schema.dumps(Review.query.filter_by(id == id).all())
+
+
 @app.route('/api/users/<int:id>/orders', methods=['GET'])
 @auth.login_required
 def get_users_orders(id):
