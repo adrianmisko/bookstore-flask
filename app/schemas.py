@@ -46,7 +46,7 @@ class BookSchema(ma.ModelSchema):
 
     def get_single_image(self, obj):
         try:
-            return obj.covers[0]
+            return obj.covers[0].path
         except IndexError:
             return []
 
