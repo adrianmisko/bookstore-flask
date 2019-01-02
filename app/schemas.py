@@ -31,7 +31,7 @@ class GenreSchema(ma.ModelSchema):
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
-        fields = ('id', 'title', )
+        fields = ('id', 'title', 'authors_names', 'tags', 'price', 'cover')
     authors_names = ma.Nested(AuthorNameSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
     price = fields.Method('get_current_price')
