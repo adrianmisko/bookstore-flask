@@ -66,7 +66,7 @@ class Book(SearchableMixin, db.Model):
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='dynamic')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='dynamic')
 
-    __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors', 'ISBN']
+    __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors', 'ISBN', 'tags']
 
     @staticmethod
     def get_featured():
@@ -108,8 +108,8 @@ class Tag(db.Model):
 
 
 taggings = db.Table('taggings',
-    db.Column('tag', db.String(64), db.ForeignKey('tag.tag'), primary_key=True),
-    db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True)
+    db.Column('tag', db.String(64), db.ForeignKey('tag.tag', ondelete="CASCADE"), primary_key=True),
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id', ondelete="CASCADE"), primary_key=True)
 )
 
 
