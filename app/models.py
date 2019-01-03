@@ -108,8 +108,8 @@ class Tag(db.Model):
 
 
 taggings = db.Table('taggings',
-    db.Column('tag', db.String(64), db.ForeignKey('tag.tag'), primary_key=True),
-    db.Column('book_id', db.Integer, db.ForeignKey('book.id'), primary_key=True)
+    db.Column('tag', db.String(64), db.ForeignKey('tag.tag', ondelete="CASCADE"), primary_key=True),
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id', ondelete="CASCADE"), primary_key=True)
 )
 
 
