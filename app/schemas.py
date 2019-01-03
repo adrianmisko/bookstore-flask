@@ -56,7 +56,7 @@ class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
         fields = ('id', 'title', 'authors_names', 'publishers', 'genres', 'price',
-                  'number_in_stock', 'is_featured', 'description', 'covers', 'tags')
+                  'number_in_stock', 'is_featured', 'description', 'covers', 'tags', 'ISBN')
 
     authors_names = ma.Nested(AuthorNameSchema, many=True)
     publishers = ma.Nested(PublisherSchema, many=True)
