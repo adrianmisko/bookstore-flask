@@ -66,7 +66,7 @@ class Book(SearchableMixin, db.Model):
     genres = db.relationship('Genre', secondary='books_genres', backref='books', lazy='dynamic')
     publishers = db.relationship('Publisher', secondary='publishers_books', backref='books', lazy='dynamic')
 
-    __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors', 'ISBN']
+    __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors', 'ISBN', 'tags']
 
     @staticmethod
     def get_featured():
