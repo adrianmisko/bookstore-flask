@@ -55,7 +55,7 @@ class BookCompactSchema(ma.ModelSchema):
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
-        fields = ('id', 'title', 'authors_names', 'publishers', 'genres', 'price', 'release_date'
+        fields = ('id', 'title', 'authors_names', 'publishers', 'genres', 'price', 'release_date',
                   'number_in_stock', 'is_featured', 'description', 'covers', 'tags', 'ISBN')
 
     authors_names = ma.Nested(AuthorNameSchema, many=True)
