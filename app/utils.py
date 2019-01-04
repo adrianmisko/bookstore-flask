@@ -63,6 +63,10 @@ def filter_by_price(interval):
             books.append(book)
     return books
 
+def filter_by_publisher(name):
+    publisher = Publisher.query.filter_by(name=name).first()
+    return publisher.books
+
 
 def filter_books(filter_by):
     books = []
@@ -72,6 +76,8 @@ def filter_books(filter_by):
         if key == 'genre':
             books.append(filter_by_genre(filter_by[key]))
         if key == 'price':
-            filter_by_price(filter_by[key])
+            books.append(filter_by_price(filter_by[key]))
+        if key == 'publisher':
+            books.append(filter_by_publisher(filter_by[key]))
 
 
