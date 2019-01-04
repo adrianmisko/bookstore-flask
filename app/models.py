@@ -131,6 +131,7 @@ class AuthorName(db.Model):
     name = db.Column(db.String(128), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
 
+
     def __repr__(self):
         return '<AuthorName \'{}\'>'.format(self.name)
 
@@ -147,6 +148,11 @@ class Author(db.Model):
     real_name = db.Column(db.String(128), nullable=False, index=True)
 
     names = db.relationship('AuthorName', backref='owner', lazy='dynamic')
+
+
+    def get_author_names(self):
+        return self.names
+
 
     def __repr__(self):
         return '<Author \'{}\'>'.format(self.real_name)

@@ -34,6 +34,14 @@ def get_authors(obj):
     return [author.real_name for author in obj.get_authors()]
 
 
+def get_current_price(id):
+    book = Book.query.filter_by(id=id).first()
+    for i in book.product_pricings:
+        if datetime.datetime.now()<i.valid_until and datetime.datetime.now()>i.valid_from:
+            return i.price
+    return book.base_price
+
+
 def filter_by_author(name):
     author_name = AuthorName.query.filter_by(name=name).first()
     author = author_name.owner
@@ -55,5 +63,7 @@ def filter_books(filter_by):
             books.append(filter_by_author(filter_by[key]))
         if key == 'genre':
             books.append(filter_by_genre(filter_by[key]))
+        if key == 'id':
+            print(get_current_price(filter_by[key]))
 
 
