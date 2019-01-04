@@ -32,7 +32,10 @@ def get_book_by_id(id):
 
 @app.route('/api/books/<int:id>/reviews', methods=['GET'])
 def get_reviews(id):
-    return reviews_schema.dumps(Review.query.filter_by(id == id).all())
+    book = Book.query.filter_by(id=id).first()
+    if book is None:
+        return 404
+    return reviews_schema.dumps(book.reviews)
 
 
 @app.route('/api/users/<int:id>/orders', methods=['GET'])
