@@ -128,6 +128,10 @@ class PhoneNumberValidator(ma.Schema):
 
     phone_number = fields.String(required=True, validate=validate_phone_number)
 
+class LocationSchema(ma.Schema):
+    class Meta:
+        strict = True
+
 
 book_schema = BookSchema()
 books_compact_schema = BookCompactSchema(many=True)

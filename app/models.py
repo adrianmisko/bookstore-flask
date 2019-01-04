@@ -68,6 +68,14 @@ class Book(SearchableMixin, db.Model):
 
     __searchable__ = ['title', 'genres', 'authors_names', 'publishers', 'authors', 'ISBN', 'tags']
 
+    def __hash__(self):
+        return self.id
+
+    def __eq__(self, other):
+        if self.id == other.id:
+            return True
+        return False
+
     @staticmethod
     def get_featured():
         return Book.query.filter(Book.is_featured).all()

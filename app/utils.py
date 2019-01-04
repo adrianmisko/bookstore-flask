@@ -3,7 +3,6 @@ from flask import g
 from app.models import *
 from decimal import Decimal
 
-
 @auth.verify_password
 def verify_password(username_or_token, password):
     client = Client.verify_auth_token(username_or_token)
@@ -63,6 +62,7 @@ def filter_by_price(interval):
             books.append(book)
     return books
 
+
 def filter_by_publisher(name):
     publisher = Publisher.query.filter_by(name=name).first()
     return publisher.books
@@ -72,18 +72,22 @@ def filter_by_tag(name):
     tag = Tag.query.filter_by(tag=name).first()
     return tag.books
 
+
 def filter_books(filter_by):
     books = []
     for key in filter_by.keys():
         if key == 'author':
-            books.append(filter_by_author(filter_by[key]))
+            books.append(set(filter_by_author(filter_by[key])))
         if key == 'genre':
-            books.append(filter_by_genre(filter_by[key]))
+            books.append(set(filter_by_genre(filter_by[key])))
         if key == 'price':
-            books.append(filter_by_price(filter_by[key]))
+            books.append(set(filter_by_price(filter_by[key])))
         if key == 'publisher':
-            books.append(filter_by_publisher(filter_by[key]))
+            books.append(set(filter_by_publisher(filter_by[key])))
         if key == 'tag':
-            books.append(filter_by_tag(filter_by[key]))
+            books.append(set(filter_by_tag(filter_by[key])))
+
+    res = set.intersection(*books)
+    return list(res)
 
 
