@@ -52,6 +52,18 @@ def filter_by_genre(genre):
     return gen.books
 
 
+def filter_by_price(interval):
+    price = interval.split(':')
+    f = price[0]
+    t = price[1]
+    books = []
+    for book in Book.query.all():
+        current_price = get_current_price(book)
+        if current_price>Decimal(f) and current_price<Decimal(t):
+            books.append(book)
+    return books
+
+
 def filter_books(filter_by):
     books = []
     for key in filter_by.keys():
@@ -59,5 +71,7 @@ def filter_books(filter_by):
             books.append(filter_by_author(filter_by[key]))
         if key == 'genre':
             books.append(filter_by_genre(filter_by[key]))
+        if key == 'price':
+            filter_by_price(filter_by[key])
 
 
