@@ -68,6 +68,10 @@ def filter_by_publisher(name):
     return publisher.books
 
 
+def filter_by_tag(name):
+    tag = Tag.query.filter_by(tag=name).first()
+    return tag.books
+
 def filter_books(filter_by):
     books = []
     for key in filter_by.keys():
@@ -79,5 +83,7 @@ def filter_books(filter_by):
             books.append(filter_by_price(filter_by[key]))
         if key == 'publisher':
             books.append(filter_by_publisher(filter_by[key]))
+        if key == 'tag':
+            books.append(filter_by_tag(filter_by[key]))
 
 
