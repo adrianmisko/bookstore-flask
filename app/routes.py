@@ -36,7 +36,7 @@ def get_reviews(id):
     book = Book.query.filter_by(id=id).first()
     if book is None:
         return 404
-    return reviews_schema.dumps(book.reviews)
+    return jsonify(reviews_schema.dump(book.reviews).data), 200
 
 
 @app.route('/api/users/<int:id>/orders', methods=['GET'])
