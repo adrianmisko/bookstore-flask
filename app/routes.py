@@ -39,6 +39,13 @@ def get_reviews(id):
     return jsonify(reviews_schema.dump(book.reviews).data), 200
 
 
+@app.route('/api/books/<int:id>/reviews', methods=['POST'])
+def add_review(id):
+    print(request.json)
+    print(id)
+    return 201
+
+
 @app.route('/api/users/<int:id>/orders', methods=['GET'])
 @auth.login_required
 def get_users_orders(id):
