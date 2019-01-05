@@ -41,9 +41,20 @@ def get_reviews(id):
 
 @app.route('/api/books/<int:id>/reviews', methods=['POST'])
 def add_review(id):
-    print(request.json)
-    print(id)
-    return 201
+    try:
+        book = Book.query.filter_by(id=id).first()
+        if book is None:
+            return 404
+        review_validator.validate(request.json)
+        review = Review(
+            author=request.json.get('author'),
+            body=request.json.get('body'),
+            mark=request.json.get('mark'))
+        review.book = book
+        return jsonify(review_schema.dump(review).data), 201
+    except ValidationError as err:
+        print(err.messages)
+        return jsonify(err.messages), 400
 
 
 @app.route('/api/users/<int:id>/orders', methods=['GET'])

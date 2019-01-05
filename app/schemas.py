@@ -84,6 +84,14 @@ class ReviewSchema(ma.ModelSchema):
         strict = True
 
 
+class ReviewValidator(ma.Schema):
+    author = fields.String(validate=validate.Length(
+                    min=1, max=128, error='Author field must be between 1 and 128 characters long'))
+    body = fields.String(validate=validate.Length(
+        min=15, max=4096, error='Author field must be between 15 and 4096 characters long'))
+    mark = fields.Integer(validate=validate.Range(max=10, error='You can\'t rate more than 10 points (5 stars)'))
+
+
 class ClientSchema(ma.ModelSchema):
     class Meta:
         model = Client
@@ -143,3 +151,5 @@ book_searchable_schema = BookSearchableSchema()
 items_ordered_schema = ItemsOrderedSchema(many=True)
 phone_number_validator = PhoneNumberValidator()
 reviews_schema = ReviewSchema(many=True)
+review_schema = ReviewSchema()
+review_validator = ReviewValidator()
