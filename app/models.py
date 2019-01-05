@@ -24,9 +24,6 @@ class SearchableMixin(object):
             'update': list(session.dirty),
             'delete': list(session.deleted)
         }
-
-    @classmethod
-    def after_commit(cls, session):
         for obj in session._changes['add']:
             if isinstance(obj, SearchableMixin):
                 add_to_index(obj.__tablename__, obj)
@@ -45,7 +42,6 @@ class SearchableMixin(object):
 
 
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
-db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 
 class Book(SearchableMixin, db.Model):
