@@ -50,9 +50,7 @@ def add_review(id):
             author=request.json.get('author'),
             body=request.json.get('body'),
             mark=request.json.get('mark'))
-        db.session.add(review)
-        review.book = book
-        db.session.commit()
+        book.reviews.append(review)
         return jsonify(review_schema.dump(review).data), 201
     except ValidationError as err:
         print(err.messages)

@@ -126,7 +126,7 @@ class Review(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
     author = db.Column(db.String(128), nullable=False)
     body = db.Column(db.String(4096), nullable=False)
-    mark = db.Column(db.Integer, nullable=False)
+    mark = db.Column(db.Integer, nullable=False, default=10)
     upvotes = db.Column(db.Integer, nullable=False, default=0)
     downvotes = db.Column(db.Integer, nullable=False, default=0)
     posted_on = db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
