@@ -126,9 +126,10 @@ class Review(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
     author = db.Column(db.String(128), nullable=False)
     body = db.Column(db.String(4096), nullable=False)
-    mark = db.Column(db.Integer, nullable=False)
-    upvotes = db.Column(db.Integer, nullable=False)
-    downvotes = db.Column(db.Integer, nullable=False)
+    mark = db.Column(db.Numeric, nullable=False)
+    upvotes = db.Column(db.Integer, nullable=False, default=0)
+    downvotes = db.Column(db.Integer, nullable=False, default=0)
+    posted_on = db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
 
     def __repr__(self):
         return '<Review book_id: {}, author: \'{}\'>'.format(self.book_id, self.author)
@@ -282,6 +283,7 @@ class Client(db.Model):
     phone_number = db.Column(db.String(32), nullable=False, unique=True, index=True)
     email = db.Column(db.String(64), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(128), nullable=False)
+    registered_on = db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
 
     opinions = db.relationship('Opinion', backref='client', lazy='joined')
 
@@ -317,6 +319,7 @@ class Opinion(db.Model):
     mark = db.Column(db.Integer, nullable=False)
     upvotes = db.Column(db.Integer)
     downvotes = db.Column(db.Integer)
+    posted_on = db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
 
     def __repr__(self):
         return '<Opinion {} from {}>'.format(self.id, self.client)
