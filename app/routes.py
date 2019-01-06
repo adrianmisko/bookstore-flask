@@ -150,7 +150,7 @@ def get_tags():
         return jsonify(tags_schema.dump(tags).data), 200
 
 
-@app.route('/api/authors', methods=['GET'])
+@app.route('/api/authors_names', methods=['GET'])
 def get_authors_names():
     name = request.args.get('author_name', False)
     if name:
