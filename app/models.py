@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from app.search import add_to_index, remove_from_index, query_index
 import datetime
+from sqlalchemy import and_
 
 
 class SearchableMixin(object):
@@ -72,6 +73,9 @@ class Book(SearchableMixin, db.Model):
             return True
         return False
 
+    def __repr__(self):
+        return '<Book \'{}\'>'.format(self.title)
+
     @staticmethod
     def get_featured():
         return Book.query.filter(Book.is_featured).all()
@@ -79,8 +83,17 @@ class Book(SearchableMixin, db.Model):
     def get_authors(self):
         return [name.owner for name in self.authors_names]
 
-    def __repr__(self):
-        return '<Book \'{}\'>'.format(self.title)
+    def get_current_price(self):
+        pp = ProductPricing.query \
+            .filter(
+            and_(ProductPricing.book_id == self.id,
+                 ProductPricing.valid_until > datetime.datetime.now(),
+                 ProductPricing.valid_from < datetime.datetime.now())) \
+            .first()
+        if pp is not None:
+            return pp.price
+        else:
+            return self.base_price
 
 
 class Cover(db.Model):

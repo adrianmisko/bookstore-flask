@@ -115,3 +115,48 @@ def check_if_phone_number_is_valid():
         return jsonify({'valid phone number': True}), 200
     except ValidationError as err:
         return jsonify(err.messages), 400
+
+
+@app.route('/api/genres', methods=['GET'])
+def get_genres():
+    genre = request.args.get('genre', False)
+    if genre:
+        genres = Genre.query.filter(Genre.name.like(genre + '%')).all()
+        return jsonify(genres_schema.dump(genres).data), 200
+    else:
+        genres = Genre.query.all()
+        return jsonify(genres_schema.dump(genres).data), 200
+
+
+@app.route('/api/publishers', methods=['GET'])
+def get_publishers():
+    publisher = request.args.get('publisher', False)
+    if publisher:
+        publishers = Publisher.query.filter(Publisher.name.like(publisher + '%')).all()
+        return jsonify(publishers_schema.dump(publishers).data), 200
+    else:
+        publishers = Publisher.query.all()
+        return jsonify(publishers_schema.dump(publishers).data), 200
+
+
+@app.route('/api/tags', methods=['GET'])
+def get_tags():
+    tag = request.args.get('tag', False)
+    if tag:
+        tags = Tag.query.filter(Tag.tag.like(tag + '%')).all()
+        return jsonify(tags_schema.dump(tags).data), 200
+    else:
+        tags = Tag.query.all()
+        return jsonify(tags_schema.dump(tags).data), 200
+
+
+@app.route('/api/authors_names', methods=['GET'])
+def get_authors_names():
+    name = request.args.get('author_name', False)
+    if name:
+        names = AuthorName.query.filter(AuthorName.name.like(name + '%')).all()
+        return jsonify(authors_names_schema.dump(names).data), 200
+    else:
+        authors_names = AuthorName.query.all()
+        return jsonify(authors_names_schema.dump(authors_names).data), 200
+

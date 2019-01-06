@@ -3,6 +3,7 @@ from flask import g
 from app.models import *
 from decimal import Decimal
 
+
 @auth.verify_password
 def verify_password(username_or_token, password):
     client = Client.verify_auth_token(username_or_token)
@@ -18,6 +19,19 @@ def calculate_price(item_id, quantity):
     return Book.query.filter_by(id=item_id).first().base_price * Decimal(quantity)
 
 
+def get_current_price(obj):
+    pp = ProductPricing.query \
+        .filter(
+        and_(ProductPricing.book_id == obj.id,
+             ProductPricing.valid_until > datetime.datetime.now(),
+             ProductPricing.valid_from < datetime.datetime.now())) \
+        .first()
+    if pp is not None:
+        return pp.price
+    else:
+        return obj.base_price
+
+
 def get_single_image(obj):
     try:
         return obj.covers[0].path
@@ -27,13 +41,6 @@ def get_single_image(obj):
 
 def get_authors(obj):
     return [author.real_name for author in obj.get_authors()]
-
-
-def get_current_price(obj):
-    for i in obj.product_pricings:
-        if i.valid_from < datetime.datetime.now() < i.valid_until:
-            return i.price
-    return obj.base_price
 
 
 def filter_by_author(name):
@@ -57,8 +64,8 @@ def filter_by_price(interval):
     t = price[1]
     books = []
     for book in Book.query.all():
-        current_price = get_current_price(book)
-        if current_price>Decimal(f) and current_price<Decimal(t):
+        current_price = book.get_current_price()
+        if Decimal(f) < current_price < Decimal(t):
             books.append(book)
     return books
 
@@ -89,5 +96,3 @@ def filter_books(filter_by):
 
     res = set.intersection(*books)
     return list(res)
-
-
