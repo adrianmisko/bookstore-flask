@@ -89,6 +89,7 @@ def filter_books(filter_by):
     #       )
     #   ).all()
     # FIND HOW TO INSPECT GENERATED QUERY
+    print(filter_by.getlist('author'))
     for key in filter_by.keys():
         if key == 'author':
             books.append(set(filter_by_author(filter_by[key])))
