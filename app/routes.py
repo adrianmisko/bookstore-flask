@@ -154,7 +154,7 @@ def get_tags():
 def get_authors_names():
     name = request.args.get('authors_name', False)
     if name:
-        names = AuthorName.query.filter(AuthorName.name.ilike(name + '%')).all()
+        names = AuthorName.query.filter(AuthorName.name.ilike('%' + name + '%')).all()
         return jsonify(authors_names_schema.dump(names).data), 200
     else:
         authors_names = AuthorName.query.all()
