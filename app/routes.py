@@ -121,7 +121,7 @@ def check_if_phone_number_is_valid():
 def get_genres():
     genre = request.args.get('genre', False)
     if genre:
-        genres = Genre.query.filter(Genre.name.like(genre + '%')).all()
+        genres = Genre.query.filter(Genre.name.ilike(genre + '%')).all()
         return jsonify(genres_schema.dump(genres).data), 200
     else:
         genres = Genre.query.all()
@@ -132,7 +132,7 @@ def get_genres():
 def get_publishers():
     publisher = request.args.get('publisher', False)
     if publisher:
-        publishers = Publisher.query.filter(Publisher.name.like(publisher + '%')).all()
+        publishers = Publisher.query.filter(Publisher.name.ilike(publisher + '%')).all()
         return jsonify(publishers_schema.dump(publishers).data), 200
     else:
         publishers = Publisher.query.all()
@@ -143,7 +143,7 @@ def get_publishers():
 def get_tags():
     tag = request.args.get('tag', False)
     if tag:
-        tags = Tag.query.filter(Tag.tag.like(tag + '%')).all()
+        tags = Tag.query.filter(Tag.tag.ilike(tag + '%')).all()
         return jsonify(tags_schema.dump(tags).data), 200
     else:
         tags = Tag.query.all()
@@ -152,9 +152,9 @@ def get_tags():
 
 @app.route('/api/authors_names', methods=['GET'])
 def get_authors_names():
-    name = request.args.get('author_name', False)
+    name = request.args.get('authors_name', False)
     if name:
-        names = AuthorName.query.filter(AuthorName.name.like(name + '%')).all()
+        names = AuthorName.query.filter(AuthorName.name.ilike(name + '%')).all()
         return jsonify(authors_names_schema.dump(names).data), 200
     else:
         authors_names = AuthorName.query.all()

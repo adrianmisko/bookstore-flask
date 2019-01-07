@@ -82,6 +82,13 @@ def filter_by_tag(name):
 
 def filter_books(filter_by):
     books = []
+    # books = Book.query.filter(
+    #      _and(
+    #         Book.author.in_(make_list(filter_by[key])),
+    #         ...
+    #       )
+    #   ).all()
+    # FIND HOW TO INSPECT GENERATED QUERY
     for key in filter_by.keys():
         if key == 'author':
             books.append(set(filter_by_author(filter_by[key])))
