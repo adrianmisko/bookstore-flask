@@ -18,8 +18,10 @@ def get_books():
             books = Book.query.all()
             return jsonify(books_compact_schema.dump(books).data), 200
         else:
-            filter_books(request.args)
-            return jsonify({'ok': 'ok'}), 200
+            books = filter_books(request.args)
+            if request.args.get('detailed'):
+                return jsonify(books_schema.dump(books).data), 200
+            return jsonify(books_compact_schema.dump(books).data), 200
     else:
         page = request.args.get('page') or 1
         books, found_total = Book.search(search_by, page=page)

@@ -143,6 +143,7 @@ class LocationSchema(ma.Schema):
 
 
 book_schema = BookSchema()
+books_schema = BookSchema(many=True)
 books_compact_schema = BookCompactSchema(many=True)
 client_schema = ClientSchema()
 registration_client_schema = RegistrationClientSchema()
