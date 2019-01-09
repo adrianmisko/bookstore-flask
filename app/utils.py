@@ -81,26 +81,43 @@ def filter_by_tag(name):
 
 
 def filter_books(filter_by):
-    books = []
-    # books = Book.query.filter(
-    #      _and(
-    #         Book.author.in_(make_list(filter_by[key])),
-    #         ...
-    #       )
-    #   ).all()
-    # FIND HOW TO INSPECT GENERATED QUERY
-    print(filter_by.getlist('author'))
-    for key in filter_by.keys():
-        if key == 'author':
-            books.append(set(filter_by_author(filter_by[key])))
-        if key == 'genre':
-            books.append(set(filter_by_genre(filter_by[key])))
-        if key == 'price':
-            books.append(set(filter_by_price(filter_by[key])))
-        if key == 'publisher':
-            books.append(set(filter_by_publisher(filter_by[key])))
-        if key == 'tag':
-            books.append(set(filter_by_tag(filter_by[key])))
 
-    res = set.intersection(*books)
-    return list(res)
+    options = ['authors', 'publishers', 'prices', 'genres', 'tags']
+    query_args = {
+        'authors': [],
+        'tags': [],
+        'genres': [],
+        'prices': [],
+        'publishers': [],
+    }
+
+    print(filter_by)
+    for key in filter_by.keys():
+        query_args[key + 's'] = filter_by.getlist(key)
+    print(query_args)
+
+
+
+    queries = {
+        'authors': lambda authors: Book.id.in_(
+            db.session.query(Book.id).join(authorships).join(AuthorName).filter(
+            AuthorName.name.in_(authors))),
+        'publishers': lambda publishers: Book.id.in_(
+            db.session.query(Book.id).join(publishers_books).join(Publisher).filter(
+                Publisher.name.in_(publishers))),
+        'prices': lambda prices: db.session.execute(
+            'SELECT get_books_in_price_range(?, ?)', [Decimal(prices[0].split(':')[0]), Decimal(prices[0].split(':')[1])]),
+        'tags': lambda tags: Book.id.in_(
+            db.session.query(Book.id).join(taggings).join(Tag).filter(
+            Tag.tag.in_(tags))),
+        'genres': lambda genres: Book.id.in_(
+            db.session.query(Book.id).join(books_genres).join(Genre).filter(
+            Genre.name.in_(genres))),
+    }
+
+    conditions = []
+    for option in options:
+        if query_args[option]:
+            conditions.append(queries[option](query_args[option]))
+
+    return Book.query.filter(*conditions).all()

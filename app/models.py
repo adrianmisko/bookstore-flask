@@ -3,7 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from app.search import add_to_index, remove_from_index, query_index
 import datetime
-from sqlalchemy import and_
+from sqlalchemy import and_, func, select, outerjoin, intersect, intersect_all
+
 
 
 class SearchableMixin(object):
@@ -332,5 +333,4 @@ class Opinion(db.Model):
 
     def __repr__(self):
         return '<Opinion {} from {}>'.format(self.id, self.client)
-
 
