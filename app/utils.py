@@ -97,7 +97,6 @@ def filter_books(filter_by):
     print(query_args)
 
 
-
     queries = {
         'authors': lambda authors: Book.id.in_(
             db.session.query(Book.id).join(authorships).join(AuthorName).filter(
@@ -105,8 +104,10 @@ def filter_books(filter_by):
         'publishers': lambda publishers: Book.id.in_(
             db.session.query(Book.id).join(publishers_books).join(Publisher).filter(
                 Publisher.name.in_(publishers))),
-        'prices': lambda prices: db.session.execute(
-            'SELECT get_books_in_price_range(?, ?)', [Decimal(prices[0].split(':')[0]), Decimal(prices[0].split(':')[1])]),
+        'prices': lambda prices: Book.id.in_([row[0] for row in db.session.execute(
+            'SELECT get_books_in_price_range(:f, :t)',
+        {'f': Decimal(query_args['prices'][0].split(':')[0]),
+         't': Decimal(query_args['prices'][0].split(':')[1])}).fetchall()]),
         'tags': lambda tags: Book.id.in_(
             db.session.query(Book.id).join(taggings).join(Tag).filter(
             Tag.tag.in_(tags))),
