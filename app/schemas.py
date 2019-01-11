@@ -96,7 +96,7 @@ class ClientSchema(ma.ModelSchema):
     class Meta:
         model = Client
         strict = True
-        exclude = ('id', 'password_hash', 'opinions', 'name', 'surname')
+        exclude = ('id', 'password_hash', 'opinions')
 
     email = fields.Email(validate=validate_email, required=True)
 
