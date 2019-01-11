@@ -86,7 +86,7 @@ def filter_books(filter_by):
     query_args = {option: [] for option in options}
 
     for key in filter_by.keys():
-        query_args[key + 's' if key in options else ''] = filter_by.getlist(key)
+        query_args[key + 's' if key + 's' in options else ''] = filter_by.getlist(key)
 
     queries = {
         'authors_names': lambda authors: Book.id.in_(
