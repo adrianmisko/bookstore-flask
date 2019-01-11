@@ -268,6 +268,7 @@ class PaymentMethod(db.Model):
 
 class DeliveryMethod(db.Model):
     name = db.Column(db.String(64), primary_key=True)
+    cost = db.Column(db.Numeric, nullable=False, index=True)
 
     def __repr__(self):
         return '<DeliveryMethod \'{}\'>'.format(self.name)
@@ -278,9 +279,10 @@ class Location(db.Model):
     place = db.Column(db.String(64), nullable=False)
     street_name = db.Column(db.String(128), nullable=False)
     street_number = db.Column(db.String(8), nullable=False)
+    flat_number = db.Column(db.String(8))
     zip_code = db.Column(db.String(64), nullable=False, index=True)
 
-    __table_args__ = (db.Index('location_index', place, street_name, street_number), )
+    __table_args__ = (db.Index('location_index', place, street_name, street_number, flat_number), )
 
     def __repr__(self):
         return '<Location {} {} {} {}>'.format(self.zip_code, self.place, self.street_name, self.street_number)
