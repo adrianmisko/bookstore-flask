@@ -89,7 +89,7 @@ def filter_books(filter_by):
         query_args[key + 's' if key in options else ''] = filter_by.getlist(key)
 
     queries = {
-        'authors': lambda authors: Book.id.in_(
+        'authors_names': lambda authors: Book.id.in_(
             db.session.query(Book.id).join(authorships).join(AuthorName).filter(
             AuthorName.name.in_(authors))),
         'publishers': lambda publishers: Book.id.in_(
