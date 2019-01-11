@@ -96,7 +96,11 @@ def register():
         client = client_schema.load(request.json).data
         db.session.add(client)
         db.session.commit()
-        return jsonify({'email': client.email}), 201
+        return jsonify({
+            'email': client.email,
+            'name': client.name,
+            'surname': client.surname
+        }), 201
     except ValidationError as err:
         return jsonify(err.messages), 400
 
