@@ -146,6 +146,7 @@ class LocationSchema(ma.Schema):
 class DeliveryMethodSchema(ma.Schema):
     class Meta:
         model = DeliveryMethod
+        fields = ('name', 'cost')
 
 
 book_schema = BookSchema()
