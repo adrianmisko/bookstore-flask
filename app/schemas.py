@@ -139,7 +139,13 @@ class PhoneNumberValidator(ma.Schema):
 
 class LocationSchema(ma.Schema):
     class Meta:
+        model = Location
         strict = True
+
+
+class DeliveryMethodSchema(ma.Schema):
+    class Meta:
+        model = DeliveryMethod
 
 
 book_schema = BookSchema()
@@ -158,3 +164,4 @@ genres_schema = GenreSchema(many=True)
 tags_schema = TagSchema(many=True)
 publishers_schema = PublisherSchema(many=True)
 authors_names_schema = AuthorNameSchema(many=True)
+delivery_methods_schema = DeliveryMethodSchema(many=True)

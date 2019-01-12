@@ -177,3 +177,9 @@ def get_min_price():
 def get_max_price():
     max_price  = db.session.execute('SELECT get_max_price()').scalar()
     return jsonify({'max': max_price}), 200
+
+
+@app.route('api/delivery_methods', methods=['GET'])
+def get_delivery_methods():
+    delivery_methods = DeliveryMethod.query.all()
+    return jsonify(delivery_methods_schema.dump(delivery_methods).data), 200
