@@ -169,17 +169,17 @@ def get_authors_names():
 
 @app.route('/api/min_price', methods=['GET'])
 def get_min_price():
-    min_price  = db.session.execute('SELECT get_min_price()').scalar()
+    min_price = db.session.execute('SELECT get_min_price()').scalar()
     return jsonify({'min': min_price}), 200
 
 
 @app.route('/api/max_price', methods=['GET'])
 def get_max_price():
-    max_price  = db.session.execute('SELECT get_max_price()').scalar()
+    max_price = db.session.execute('SELECT get_max_price()').scalar()
     return jsonify({'max': max_price}), 200
 
 
-@app.route('api/delivery_methods', methods=['GET'])
+@app.route('/api/delivery_methods', methods=['GET'])
 def get_delivery_methods():
     delivery_methods = DeliveryMethod.query.all()
     return jsonify(delivery_methods_schema.dump(delivery_methods).data), 200
