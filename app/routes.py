@@ -183,3 +183,9 @@ def get_max_price():
 def get_delivery_methods():
     delivery_methods = DeliveryMethod.query.all()
     return jsonify(delivery_methods_schema.dump(delivery_methods).data), 200
+
+
+@app.route('/api/payment_methods', methods=['GET'])
+def get_payment_methods():
+    payment_methods = PaymentMethod.query.all()
+    return jsonify(payment_methods_schema.dump(payment_methods).data), 200

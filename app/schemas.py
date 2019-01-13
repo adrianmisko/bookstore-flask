@@ -149,6 +149,12 @@ class DeliveryMethodSchema(ma.Schema):
         fields = ('name', 'cost')
 
 
+class PaymentMethodSchema(ma.Schema):
+    class Meta:
+        model = PaymentMethod
+        fields = ('name', )
+
+
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
 books_compact_schema = BookCompactSchema(many=True)
@@ -166,3 +172,4 @@ tags_schema = TagSchema(many=True)
 publishers_schema = PublisherSchema(many=True)
 authors_names_schema = AuthorNameSchema(many=True)
 delivery_methods_schema = DeliveryMethodSchema(many=True)
+payment_methods_schema = PaymentMethodSchema(many=True)
