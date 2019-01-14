@@ -90,8 +90,8 @@ def filter_books(filter_by):
 
     queries = {
         'authors_names': lambda authors: Book.id.in_(
-            db.session.query(Book.id).join(authorships).join(AuthorName).filter(
-            AuthorName.name.in_(authors))),
+            db.session.query(Book.id).join(authorships).join(AuthorName).join(Author).filter(
+            Author.real_name.in_(authors))),
         'publishers': lambda publishers: Book.id.in_(
             db.session.query(Book.id).join(publishers_books).join(Publisher).filter(
                 Publisher.name.in_(publishers))),

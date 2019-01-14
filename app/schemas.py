@@ -137,22 +137,54 @@ class PhoneNumberValidator(ma.Schema):
     phone_number = fields.String(required=True, validate=validate_phone_number)
 
 
-class LocationSchema(ma.Schema):
+class LocationSchema(ma.ModelSchema):
     class Meta:
         model = Location
         strict = True
+        fields = ('place', 'street_name', 'street_number', 'flat_number', 'zip_code')
+
+    place =  fields.String(required=True, validate=validate.Length(
+                min=1, max=64, error='Place field must be between 1 and 64 characters long'))
+    street_name = fields.String(required=True, validate=validate.Length(
+                min=1, max=128, error='Street name field must be between 1 and 128 characters long'))
+    street_number = fields.String(required=True, validate=validate.Length(
+                min=1, max=8, error='Street number field must be between 1 and 8 characters long'))
+    zip_code = fields.String(required=True, validate=validate.Length(
+                min=1, max=64, error='Zip code field must be between 1 and 64 characters long'))
 
 
-class DeliveryMethodSchema(ma.Schema):
+
+class DeliveryMethodSchema(ma.ModelSchema):
     class Meta:
         model = DeliveryMethod
         fields = ('name', 'cost')
 
 
-class PaymentMethodSchema(ma.Schema):
+class PaymentMethodSchema(ma.ModelSchema):
     class Meta:
         model = PaymentMethod
         fields = ('name', )
+
+
+class OrderSchema(ma.ModelSchema):
+    class Meta:
+        model = Order
+        strict = True
+        fields = ('id', 'payment_id', 'order_date', 'payment_date', 'delivered_on',  'total_price', 'items_ordered', 'location', 'delivery_method', 'payment_method')
+
+    items_ordered = ma.Nested(ItemsOrderedSchema, many=True)
+    location = ma.Nested(LocationSchema, many=True)
+    delivery_method = ma.Nested(DeliveryMethodSchema, many=True)
+    payment_method = ma.Nested(PaymentMethodSchema, many=True)
+
+
+
+class OrdersCompactSchema(ma.ModelSchema):
+    class Meta:
+        model = Order
+        fields = ('id', 'items_ordered', 'total_price')
+
+
 
 
 book_schema = BookSchema()
@@ -171,5 +203,9 @@ genres_schema = GenreSchema(many=True)
 tags_schema = TagSchema(many=True)
 publishers_schema = PublisherSchema(many=True)
 authors_names_schema = AuthorNameSchema(many=True)
+authors_schema = AuthorSchema(many=True)
 delivery_methods_schema = DeliveryMethodSchema(many=True)
+location_schema = LocationSchema()
+order_schema = OrderSchema()
+orders_compact_schema = OrdersCompactSchema(many=True)
 payment_methods_schema = PaymentMethodSchema(many=True)

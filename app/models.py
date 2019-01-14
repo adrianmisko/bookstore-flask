@@ -247,6 +247,7 @@ class Order(db.Model):
     payment_id = db.Column(db.Integer, nullable=True, index=True)
     order_date = db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
     payment_date = db.Column(db.DateTime, nullable=True, index=True)
+    delivered_on = db.Column(db.DateTime, index=True)
     total_price = db.Column(db.Numeric, nullable=False)
 
     items_ordered = db.relationship('ItemOrdered', backref='order', lazy='joined')

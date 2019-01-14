@@ -62,11 +62,19 @@ def add_review(id):
 
 
 @app.route('/api/users/<int:id>/orders', methods=['GET'])
-@auth.login_required
 def get_users_orders(id):
-    if g.client.id != id:
-        return jsonify({'Error': 'You aren\'t permitted to see get this resource'}), 403
-    return jsonify({'Status': '200 OK'}), 200
+    client = Client.query.filter_by(id=id).first()
+    if client is None:
+        return 404
+    return jsonify(orders_compact_schema.dump(client.orders).data), 200
+
+
+@app.route('/api/users/<int:client_id>/orders/<int:order_id>', methods=['GET'])
+def get_order(client_id, order_id):
+    order = Order.query.filter_by(id=order_id).first()
+    if order is None:
+        return 404
+    return jsonify(order_schema.dump(order).data), 200
 
 
 @app.route('/api/users/<int:id>/orders', methods=['POST'])
@@ -76,10 +84,18 @@ def make_order(id):
         items = [ItemOrdered(order_id=order.id, book_id=item.get('id'), quantity=item.get('quantity'),
                              price=calculate_price(item.get('id'), item.get('quantity')))
                              for item in items_ordered_schema.load(request.json.get('items')).data]
+        order.items_ordered = items
         order.client = Client.query.filter_by(id=id).first()
-        return jsonify({'ok': items[0].price}), 200
+        order.location = location_schema.load(request.json.get('location')).data
+        order.delivery_method = DeliveryMethod.query.filter_by(name=request.json.get('delivery_method')).first()
+        order.payment_method = PaymentMethod.query.filter_by(name=request.json.get('payment_method')).first()
+        order.total_price = sum([item.price for item in items]) + order.delivery_method.cost
+        db.session.add(order)
+        db.session.commit()
+        return jsonify({'id': order.id}), 201
     except ValidationError as err:
         return jsonify(err.messages), 400
+
 
 
 @app.route('/api/token', methods=['POST'])
@@ -160,8 +176,12 @@ def get_tags():
 def get_authors_names():
     name = request.args.get('authors_name', False)
     if name:
-        names = AuthorName.query.filter(AuthorName.name.ilike('%' + name + '%')).all()
-        return jsonify(authors_names_schema.dump(names).data), 200
+        names = db.session.query(Author).filter(Author.real_name.ilike('%' + name + '%')).all()
+        if names:
+            return jsonify(authors_schema.dump(names).data), 200
+        else:
+            names = db.session.query(AuthorName).filter(AuthorName.name.ilike('%' + name + '%')).all()
+            return jsonify(authors_names_schema.dump(names).data), 200
     else:
         authors_names = AuthorName.query.all()
         return jsonify(authors_names_schema.dump(authors_names).data), 200
