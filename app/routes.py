@@ -97,12 +97,17 @@ def make_order(id):
         return jsonify(err.messages), 400
 
 
-
 @app.route('/api/token', methods=['POST'])
 @auth.login_required
 def get_auth_token():
     token = g.client.generate_auth_token()
-    return jsonify({'token': token.decode('ascii')}), 200
+    return jsonify({
+        'token': token.decode('ascii'),
+        'id': g.client.id,
+        'email': g.client.email,
+        'name': g.client.name,
+        'surname': g.client.surname
+    }), 200
 
 
 @app.route('/api/register', methods=['POST'])
@@ -113,6 +118,7 @@ def register():
         db.session.add(client)
         db.session.commit()
         return jsonify({
+            'id': client.id,
             'email': client.email,
             'name': client.name,
             'surname': client.surname

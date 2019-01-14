@@ -3,8 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from app.search import add_to_index, remove_from_index, query_index
 import datetime
-from sqlalchemy import and_, func, select, outerjoin, intersect, intersect_all
-
+from sqlalchemy import and_, or_
 
 
 class SearchableMixin(object):
@@ -150,7 +149,6 @@ class AuthorName(db.Model):
     name = db.Column(db.String(128), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
 
-
     def __repr__(self):
         return '<AuthorName \'{}\'>'.format(self.name)
 
@@ -168,10 +166,8 @@ class Author(db.Model):
 
     names = db.relationship('AuthorName', backref='owner', lazy='dynamic')
 
-
     def get_author_names(self):
         return self.names
-
 
     def __repr__(self):
         return '<Author \'{}\'>'.format(self.real_name)
