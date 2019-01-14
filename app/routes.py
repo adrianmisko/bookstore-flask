@@ -81,20 +81,22 @@ def get_order(client_id, order_id):
 def make_order(id):
     try:
         order = Order()
-        items = [ItemOrdered(order_id=order.id, book_id=item.get('id'), quantity=item.get('quantity'),
+        items = [ItemOrdered(order=order, book=Book.query.get(item.get('id')), quantity=item.get('quantity'),
                              price=calculate_price(item.get('id'), item.get('quantity')))
-                             for item in items_ordered_schema.load(request.json.get('items')).data]
-        order.items_ordered = items
-        order.client = Client.query.filter_by(id=id).first()
-        order.location = location_schema.load(request.json.get('location')).data
+                 for item in items_ordered_schema.load(request.json.get('items')).data]
         order.delivery_method = DeliveryMethod.query.filter_by(name=request.json.get('delivery_method')).first()
         order.payment_method = PaymentMethod.query.filter_by(name=request.json.get('payment_method')).first()
+        order.items_ordered = items
         order.total_price = sum([item.price for item in items]) + order.delivery_method.cost
+        order.client = Client.query.filter_by(id=id).first()
+        order.location = location_schema.load(request.json.get('location')).data
         db.session.add(order)
         db.session.commit()
         return jsonify({'id': order.id}), 201
     except ValidationError as err:
         return jsonify(err.messages), 400
+    except Exception:
+        return 500
 
 
 @app.route('/api/token', methods=['POST'])
