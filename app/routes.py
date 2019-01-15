@@ -95,8 +95,6 @@ def make_order(id):
         return jsonify({'id': order.id}), 201
     except ValidationError as err:
         return jsonify(err.messages), 400
-    except Exception:
-        return 500
 
 
 @app.route('/api/token', methods=['POST'])
