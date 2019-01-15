@@ -84,12 +84,13 @@ def make_order(id):
         items = [ItemOrdered(order=order, book=Book.query.get(item.get('id')), quantity=item.get('quantity'),
                              price=calculate_price(item.get('id'), item.get('quantity')))
                  for item in items_ordered_schema.load(request.json.get('items')).data]
-        order.delivery_method = DeliveryMethod.query.filter_by(name=request.json.get('delivery_method')).first()
-        order.payment_method = PaymentMethod.query.filter_by(name=request.json.get('payment_method')).first()
         order.items_ordered = items
-        order.total_price = sum([item.price for item in items]) + order.delivery_method.cost
-        order.client = Client.query.filter_by(id=id).first()
+        delivery_method = DeliveryMethod.query.filter_by(name=request.json.get('delivery_method')).first()
+        order.total_price = sum([item.price for item in items]) + delivery_method.cost
         order.location = location_schema.load(request.json.get('location')).data
+        order.client = Client.query.filter_by(id=id).first()
+        order.delivery_method = delivery_method
+        order.payment_method = PaymentMethod.query.filter_by(name=request.json.get('payment_method')).first()
         db.session.add(order)
         db.session.commit()
         return jsonify({'id': order.id}), 201
