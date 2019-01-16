@@ -66,7 +66,8 @@ def get_users_orders(id):
     client = Client.query.filter_by(id=id).first()
     if client is None:
         return 404
-    return jsonify(orders_compact_schema.dump(client.orders).data), 200
+    orders = Order.query.filter_by(client=client).order_by(Order.order_date.desc()).limit(20)
+    return jsonify(orders_compact_schema.dump(orders).data), 200
 
 
 @app.route('/api/users/<int:client_id>/orders/<int:order_id>', methods=['GET'])
@@ -91,7 +92,7 @@ def make_order(id):
         order.client = Client.query.filter_by(id=id).first()
         order.delivery_method = delivery_method
         order.payment_method = PaymentMethod.query.filter_by(name=request.json.get('payment_method')).first()
-        order.status = 'IN PREPARATION'
+        order.status = 'IN_PREPARATION'
         db.session.add(order)
         db.session.commit()
         return jsonify({'id': order.id}), 201
