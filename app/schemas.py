@@ -184,7 +184,7 @@ class OrdersCompactSchema(ma.ModelSchema):
 
 
 class ClientDetailsSchema(ClientSchema):
-    last_location = ma.Nested(LocationSchema)
+    locations = ma.Nested(LocationSchema, many=True)
 
 
 book_schema = BookSchema()
@@ -210,3 +210,4 @@ order_schema = OrderSchema()
 orders_compact_schema = OrdersCompactSchema(many=True)
 payment_methods_schema = PaymentMethodSchema(many=True)
 client_details_schema = ClientDetailsSchema()
+locations_schema = LocationSchema(many=True)

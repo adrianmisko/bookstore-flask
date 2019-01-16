@@ -218,18 +218,21 @@ def get_payment_methods():
     return jsonify(payment_methods_schema.dump(payment_methods).data), 200
 
 
-@app.route('/api/users/<int:id>/last_order_location', methods=['GET'])
+@app.route('/api/users/<int:id>/locations', methods=['GET'])
 def get_users_last_order_location(id):
-    last_order = Order.query.filter_by(client_id=id).order_by(Order.order_date.desc()).first()
-    if last_order is None:
+    last_n = request.json.get('last_n', 5)
+    locations = Location.query.join(Order).join(Client)\
+        .filter(Client.id == id, Order._location_fk == Location.id).order_by(Order.order_date.desc()).limit(last_n)
+    if not locations:
         return 404
-    return jsonify(location_schema.dump(last_order.location).data), 200
+    return jsonify(locations_schema.dump(locations).data), 200
 
 
 @app.route('/api/users/<int:id>', methods=['GET'])
 def get_user_details(id):
     client = Client.query.get(id)
-    client.last_location = Order.query.filter_by(client=client).order_by(Order.order_date.desc()).first().location
+    client.locations = Location.query.join(Order).join(Client)\
+        .filter(Client.id == id, Order._location_fk == Location.id).order_by(Order.order_date.desc()).limit(5)
     if client is None:
         return 404
     return jsonify(client_details_schema.dump(client).data), 200
