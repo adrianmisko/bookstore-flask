@@ -185,15 +185,13 @@ def get_tags():
 def get_authors_names():
     name = request.args.get('authors_name', False)
     if name:
-        names = db.session.query(Author).filter(Author.real_name.ilike('%' + name + '%')).all()
-        if names:
-            return jsonify(authors_schema.dump(names).data), 200
-        else:
-            names = db.session.query(AuthorName).filter(AuthorName.name.ilike('%' + name + '%')).all()
-            return jsonify(authors_names_schema.dump(names).data), 200
+        pen_names = db.select([AuthorName.name]).where(AuthorName.name.ilike('%' + name + '%'))
+        real_names = db.session.query(Author.real_name).filter(Author.real_name.ilike('%' + name + '%')).subquery()
+        q = pen_names.union(real_names).alias('union d')
+        res = db.engine.execute(q).fetchall()
+        return jsonify({'authors_names': [{'name': r[0]} for r in res]}), 200
     else:
-        authors_names = AuthorName.query.all()
-        return jsonify(authors_names_schema.dump(authors_names).data), 200
+        return jsonify(authors_names_schema.dump(AuthorName.query.all()).data), 200
 
 
 @app.route('/api/min_price', methods=['GET'])
@@ -238,7 +236,6 @@ def get_user_details(id):
     if client is None:
         return 404
     return jsonify(client_details_schema.dump(client).data), 200
-
 
 
 @app.route('/api/discounts', methods=['GET'])
