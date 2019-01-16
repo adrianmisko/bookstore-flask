@@ -248,9 +248,9 @@ class Order(db.Model):
 
     items_ordered = db.relationship('ItemOrdered', backref='order', lazy='dynamic')
     client = db.relationship('Client', backref='orders', lazy='joined')
-    location = db.relationship('Location', backref='orders', lazy='dynamic', uselist=True)
-    delivery_method = db.relationship('DeliveryMethod', backref='orders', uselist=True)
-    payment_method = db.relationship('PaymentMethod', backref='orders', uselist=True)
+    location = db.relationship('Location', backref='orders', lazy='joined')
+    delivery_method = db.relationship('DeliveryMethod', backref='orders', lazy='joined')
+    payment_method = db.relationship('PaymentMethod', backref='orders', lazy='joined')
 
     def __repr__(self):
         return '<Order {} on {}>'.format(self.id, self.order_date)
