@@ -169,18 +169,19 @@ class OrderSchema(ma.ModelSchema):
     class Meta:
         model = Order
         strict = True
-        fields = ('id', 'payment_id', 'order_date', 'payment_date', 'delivered_on',  'total_price', 'items_ordered', 'location', 'delivery_method', 'payment_method')
+        fields = ('id', 'payment_id', 'order_date', 'payment_date', 'delivered_on', 'status',
+                  'total_price', 'items_ordered', 'location', 'delivery_method', 'payment_method')
 
     items_ordered = ma.Nested(ItemsOrderedSchema, many=True)
-    location = ma.Nested(LocationSchema, many=True)
-    delivery_method = ma.Nested(DeliveryMethodSchema, many=True)
-    payment_method = ma.Nested(PaymentMethodSchema, many=True)
+    location = ma.Nested(LocationSchema)
+    delivery_method = ma.Nested(DeliveryMethodSchema)
+    payment_method = ma.Nested(PaymentMethodSchema)
 
 
 class OrdersCompactSchema(ma.ModelSchema):
     class Meta:
         model = Order
-        fields = ('id', 'items_ordered', 'total_price')
+        fields = ('id', 'order_date', 'delivered_on', 'status', 'total_price')
 
 
 class ClientDetailsSchema(ClientSchema):

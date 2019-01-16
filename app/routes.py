@@ -91,6 +91,7 @@ def make_order(id):
         order.client = Client.query.filter_by(id=id).first()
         order.delivery_method = delivery_method
         order.payment_method = PaymentMethod.query.filter_by(name=request.json.get('payment_method')).first()
+        order.status = 'IN PREPARATION'
         db.session.add(order)
         db.session.commit()
         return jsonify({'id': order.id}), 201
