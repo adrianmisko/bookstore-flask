@@ -44,7 +44,7 @@ class CoverSchema(ma.ModelSchema):
 class CategoryDiscountSchema(ma.ModelSchema):
     class Meta:
         model = CategoryDiscount
-        fields = ('path',)
+        exclude = ()
 
 
 class BookCompactSchema(ma.ModelSchema):
@@ -221,3 +221,4 @@ orders_compact_schema = OrdersCompactSchema(many=True)
 payment_methods_schema = PaymentMethodSchema(many=True)
 client_details_schema = ClientDetailsSchema()
 locations_schema = LocationSchema(many=True)
+category_discount_schema = CategoryDiscountSchema(many=True)
