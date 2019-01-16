@@ -96,7 +96,7 @@ class ClientSchema(ma.ModelSchema):
     class Meta:
         model = Client
         strict = True
-        exclude = ('id', 'password_hash', 'opinions')
+        exclude = ('password_hash', 'opinions', 'orders')
 
     email = fields.Email(validate=validate_email, required=True)
 
@@ -153,7 +153,6 @@ class LocationSchema(ma.ModelSchema):
                 min=1, max=64, error='Zip code field must be between 1 and 64 characters long'))
 
 
-
 class DeliveryMethodSchema(ma.ModelSchema):
     class Meta:
         model = DeliveryMethod
@@ -178,13 +177,14 @@ class OrderSchema(ma.ModelSchema):
     payment_method = ma.Nested(PaymentMethodSchema, many=True)
 
 
-
 class OrdersCompactSchema(ma.ModelSchema):
     class Meta:
         model = Order
         fields = ('id', 'items_ordered', 'total_price')
 
 
+class ClientDetailsSchema(ClientSchema):
+    last_location = ma.Nested(LocationSchema)
 
 
 book_schema = BookSchema()
@@ -209,3 +209,4 @@ location_schema = LocationSchema()
 order_schema = OrderSchema()
 orders_compact_schema = OrdersCompactSchema(many=True)
 payment_methods_schema = PaymentMethodSchema(many=True)
+client_details_schema = ClientDetailsSchema()
