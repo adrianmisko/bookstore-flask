@@ -192,7 +192,7 @@ books_genres = db.Table('books_genres',
 class CategoryDiscount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     discount_value = db.Column(db.Numeric(11, 2))
-    discount_percent = db.Column(db.Integer)
+    discount_unit = db.Column(db.String(16))
     valid_from = db.Column(db.DateTime, index=True)
     valid_until = db.Column(db.DateTime, index=True)
     min_order_value = db.Column(db.Numeric(11, 2))
