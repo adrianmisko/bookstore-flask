@@ -253,6 +253,9 @@ class Order(db.Model):
     delivery_method = db.relationship('DeliveryMethod', backref='orders', lazy='joined')
     payment_method = db.relationship('PaymentMethod', backref='orders', lazy='joined')
 
+    def get_number_of_items(self):
+        return Order.query.join(ItemOrdered).filter(ItemOrdered.order_id == self.id).count()
+
     def __repr__(self):
         return '<Order {} on {}>'.format(self.id, self.order_date)
 

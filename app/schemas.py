@@ -181,7 +181,9 @@ class OrderSchema(ma.ModelSchema):
 class OrdersCompactSchema(ma.ModelSchema):
     class Meta:
         model = Order
-        fields = ('id', 'order_date', 'delivered_on', 'status', 'total_price')
+        fields = ('id', 'order_date', 'delivered_on', 'status', 'total_price', 'number_of_items')
+
+    number_of_items = ma.Function(lambda obj: obj.get_number_of_items())
 
 
 class ClientDetailsSchema(ClientSchema):
