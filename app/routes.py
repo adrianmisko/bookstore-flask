@@ -72,9 +72,9 @@ def get_users_orders(id):
 
 @app.route('/api/users/<int:client_id>/orders/<int:order_id>', methods=['GET'])
 def get_order(client_id, order_id):
-    order = Order.query.filter_by(id=order_id).first()
+    order = Order.query.get(order_id)
     if order is None:
-        return 404
+        return jsonify({'error': 404}), 404
     return jsonify(order_schema.dump(order).data), 200
 
 
