@@ -240,3 +240,12 @@ def get_user_details(id):
     return jsonify(client_details_schema.dump(client).data), 200
 
 
+
+@app.route('/api/discounts', methods=['GET'])
+def get_all_discounts():
+    cd = CategoryDiscount.query.all()
+    if cd is None:
+        return 404
+    return jsonify(category_discount_schema.dump(cd).data), 200
+
+

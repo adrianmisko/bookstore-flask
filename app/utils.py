@@ -19,17 +19,33 @@ def calculate_price(item_id, quantity):
     return Book.query.filter_by(id=item_id).first().base_price * Decimal(quantity)
 
 
-def get_current_price(obj):
-    pp = ProductPricing.query \
+def get_price_from_genres(obj):
+    cd = CategoryDiscount.query.join(discounts_genres).join(Genre).join(books_genres) \
         .filter(
-        and_(ProductPricing.book_id == obj.id,
-             ProductPricing.valid_until > datetime.datetime.now(),
-             ProductPricing.valid_from < datetime.datetime.now())) \
+        and_(books_genres.c.book_id == obj.id,
+             CategoryDiscount.valid_until >= datetime.datetime.now(),
+             CategoryDiscount.valid_from <= datetime.datetime.now())) \
         .first()
-    if pp is not None:
-        return pp.price
+    if cd is not None:
+        return cd
+
+
+def get_current_price(obj):
+    cd = get_price_from_genres(obj)
+    if cd is not None:
+        if cd.discount_unit == 'PERCENTAGE':
+            return obj.base_price * Decimal(0.01) * (Decimal(100) - cd.discount_value)
     else:
-        return obj.base_price
+        pp = ProductPricing.query \
+            .filter(
+            and_(ProductPricing.book_id == obj.id,
+                 ProductPricing.valid_until >= datetime.datetime.now(),
+                 ProductPricing.valid_from <= datetime.datetime.now())) \
+            .first()
+        if pp is not None:
+            return pp.price
+        else:
+            return Decimal(obj.base_price)
 
 
 def get_single_image(obj):

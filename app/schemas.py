@@ -41,6 +41,12 @@ class CoverSchema(ma.ModelSchema):
         fields = ('path',)
 
 
+class CategoryDiscountSchema(ma.ModelSchema):
+    class Meta:
+        model = CategoryDiscount
+        exclude = ()
+
+
 class BookCompactSchema(ma.ModelSchema):
     class Meta:
         model = Book
@@ -64,6 +70,7 @@ class BookSchema(ma.ModelSchema):
     covers = ma.Nested(CoverSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
     price = ma.Function(get_current_price)
+
 
 
 class BookSearchableSchema(ma.ModelSchema):
@@ -214,3 +221,4 @@ orders_compact_schema = OrdersCompactSchema(many=True)
 payment_methods_schema = PaymentMethodSchema(many=True)
 client_details_schema = ClientDetailsSchema()
 locations_schema = LocationSchema(many=True)
+category_discount_schema = CategoryDiscountSchema(many=True)
