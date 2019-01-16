@@ -128,13 +128,21 @@ class EmailValidator(ma.Schema):
     email = fields.Email(validate=validate_email, required=True)
 
 
-class ItemsOrderedSchema(ma.Schema):
+class ItemsOrderedValidatingSchema(ma.Schema):
     class Meta:
         strict = True
 
     id = fields.Integer(required=True, validate=validate.Range(min=1, error='Invalid ID'))
     quantity = fields.Integer(required=True, validate=validate.Range(min=1, max=99,
                                                                      error='Quantity must be greater than 0 and less than 100'))
+
+
+class ItemsOrderedSchema(ma.ModelSchema):
+    class Meta:
+        model = ItemOrdered
+        fields = ('quantity', 'book')
+
+    book = ma.Nested(BookCompactSchema)
 
 
 class PhoneNumberValidator(ma.Schema):
@@ -204,7 +212,7 @@ client_schema = ClientSchema()
 registration_client_schema = RegistrationClientSchema()
 email_validator = EmailValidator()
 book_searchable_schema = BookSearchableSchema()
-items_ordered_schema = ItemsOrderedSchema(many=True)
+items_ordered_validating_schema = ItemsOrderedValidatingSchema(many=True)
 phone_number_validator = PhoneNumberValidator()
 reviews_schema = ReviewSchema(many=True)
 review_schema = ReviewSchema()

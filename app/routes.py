@@ -84,7 +84,7 @@ def make_order(id):
         order = Order()
         items = [ItemOrdered(order=order, book=Book.query.get(item.get('id')), quantity=item.get('quantity'),
                              price=calculate_price(item.get('id'), item.get('quantity')))
-                 for item in items_ordered_schema.load(request.json.get('items')).data]
+                 for item in items_ordered_validating_schema.load(request.json.get('items')).data]
         order.items_ordered = items
         delivery_method = DeliveryMethod.query.filter_by(name=request.json.get('delivery_method')).first()
         order.total_price = sum([item.price for item in items]) + delivery_method.cost
