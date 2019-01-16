@@ -240,3 +240,10 @@ def get_user_details(id):
     return jsonify(client_details_schema.dump(client).data), 200
 
 
+@app.route('/api/discounts/<int:id>', methods=['GET'])
+def get_current_pricee(id):
+    book = Book.query.get(id)
+    if book is None:
+        return 404
+    price = get_current_price(book)
+    return jsonify({"price": price}), 200
