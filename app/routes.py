@@ -189,7 +189,7 @@ def get_authors_names():
         real_names = db.session.query(Author.real_name).filter(Author.real_name.ilike('%' + name + '%')).subquery()
         q = pen_names.union(real_names).alias('union d')
         res = db.engine.execute(q).fetchall()
-        return jsonify({'authors_names': [{'name': r[0]} for r in res]}), 200
+        return jsonify([{'name': r[0]} for r in res]), 200
     else:
         return jsonify(authors_names_schema.dump(AuthorName.query.all()).data), 200
 
