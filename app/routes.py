@@ -249,3 +249,54 @@ def get_all_discounts():
     return jsonify(category_discount_schema.dump(cd).data), 200
 
 
+@app.route('/api/reviews/<int:id>/upvote', methods=['POST'])
+def upvote_review(id):
+    connection = db.engine.raw_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc("upvote_review", [id])
+        cursor.close()
+        connection.commit()
+        return jsonify({'ok': 'ok'}), 200
+    except:
+        return jsonify({'error': 'error'}), 400
+    finally:
+        connection.close()
+
+
+@app.route('/api/reviews/<int:id>/downvote', methods=['POST'])
+def downvote_review(id):
+    connection = db.engine.raw_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc("downvote_review", [id])
+        cursor.close()
+        connection.commit()
+        return jsonify({'ok': 'ok'}), 200
+    except:
+        return jsonify({'error': 'error'}), 400
+    finally:
+        connection.close()
+
+
+@app.route('/api/reviews/<int:id>/cancel_upvote', methods=['POST'])
+def cancel_upvote(id):
+    review = Review.query.get(id)
+    if not review:
+        return jsonify({'error': 'not found'}), 404
+    else:
+        review.upvotes = review.upvotes - 1
+        db.session.commit()
+        return jsonify({'ok': 'ok'}), 200
+
+
+@app.route('/api/reviews/<int:id>/cancel_downvote', methods=['POST'])
+def cancel_downvote(id):
+    review = Review.query.get(id)
+    if not review:
+        return jsonify({'error': 'not found'}), 404
+    else:
+        review.downvotes = review.downvotes - 1
+        db.session.commit()
+        return jsonify({'ok': 'ok'}), 200
+
