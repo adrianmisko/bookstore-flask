@@ -121,7 +121,6 @@ def filter_books(filter_by):
         'genres': lambda genres: Book.id.in_(
             db.session.query(Book.id).join(books_genres).join(Genre).filter(
             Genre.name.in_(genres))),
-
     }
 
     conditions = []
