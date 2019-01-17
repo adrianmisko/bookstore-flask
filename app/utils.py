@@ -98,11 +98,14 @@ def filter_by_tag(name):
 
 def filter_books(filter_by):
 
-    options = ['authors_names', 'publishers', 'prices', 'genres', 'tags']
+    options = ['authors_names', 'publishers', 'prices', 'genres', 'tags', 'featured', 'available']
     query_args = {option: [] for option in options}
 
     for key in filter_by.keys():
-        query_args[key + 's' if key + 's' in options else ''] = filter_by.getlist(key)
+        query_args[key + 's' if key + 's' in options else key] = filter_by.getlist(key)
+
+    query_args['featured'] = True if query_args['featured'] == 'true' else False
+    query_args['available'] = True if query_args['available'] == 'true' else False
 
     queries = {
         'authors_names': lambda authors: Book.id.in_(
@@ -121,7 +124,14 @@ def filter_books(filter_by):
         'genres': lambda genres: Book.id.in_(
             db.session.query(Book.id).join(books_genres).join(Genre).filter(
             Genre.name.in_(genres))),
+        'featured': lambda featured: Book.id.in_(
+            db.session.query(Book.id).filter(Book.is_featured == featured)),
+        'available': lambda available: Book.id.in_(
+            db.session.query(Book.id).filter(Book.number_in_stock > 0)),
     }
+
+    if not query_args['available']:
+        query_args['available'] = []
 
     conditions = []
     for option in options:
