@@ -1,7 +1,7 @@
 from app import auth
 from flask import g
 from app.models import *
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 
 @auth.verify_password
@@ -15,37 +15,82 @@ def verify_password(username_or_token, password):
     return True
 
 
-def calculate_price(item_id, quantity):
-    return Book.query.filter_by(id=item_id).first().base_price * Decimal(quantity)
+def calculate_price_both_present(base_price, discounts):
+    pp_percent = discounts['product_pricing_discount_percent']
+    pp_value = discounts['product_pricing_discount_value']
+    cd_percent = discounts['category_discount_discount_percent']
+    cd_value = discounts['category_discount_discount_value']
+
+    after_pp_value = base_price - pp_value
+    after_pp_percent = after_pp_value - (after_pp_value * Decimal(Decimal(pp_percent) / Decimal(100)))
+    after_cd_value = after_pp_percent - cd_value
+    after_cd_percent = after_cd_value - (after_cd_value * Decimal(Decimal(cd_percent) / Decimal(100)))
+
+    return after_cd_percent.quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
 
 
-def get_price_from_genres(obj):
-    cd = CategoryDiscount.query.join(discounts_genres).join(Genre).join(books_genres) \
-        .filter(
-        and_(books_genres.c.book_id == obj.id,
-             CategoryDiscount.valid_until >= datetime.datetime.now(),
-             CategoryDiscount.valid_from <= datetime.datetime.now())) \
-        .first()
-    if cd is not None:
-        return cd
+def calculate_price_category_discount_present(base_price, discounts):
+    cd_percent = discounts['category_discount_discount_percent']
+    cd_value = discounts['category_discount_discount_value']
+
+    after_cd_value = base_price - cd_value
+    after_cd_percent = after_cd_value - (after_cd_value * Decimal(Decimal(cd_percent) / Decimal(100)))
+
+    return after_cd_percent.quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
+
+
+def calculate_price_product_pricing_present(base_price, discounts):
+    pp_percent = discounts['product_pricing_discount_percent']
+    pp_value = discounts['product_pricing_discount_value']
+
+    after_pp_value = base_price - pp_value
+    after_pp_percent = after_pp_value - (after_pp_value * Decimal(Decimal(pp_percent) / Decimal(100)))
+
+    return after_pp_percent.quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
 
 
 def get_current_price(obj):
-    cd = get_price_from_genres(obj)
-    if cd is not None:
-        if cd.discount_unit == 'PERCENTAGE':
-            return obj.base_price * Decimal(0.01) * (Decimal(100) - cd.discount_value)
-    else:
-        pp = ProductPricing.query \
-            .filter(
-            and_(ProductPricing.book_id == obj.id,
-                 ProductPricing.valid_until >= datetime.datetime.now(),
-                 ProductPricing.valid_from <= datetime.datetime.now())) \
-            .first()
-        if pp is not None:
-            return pp.price
-        else:
-            return Decimal(obj.base_price)
+    values = db.session.execute('SELECT * FROM get_pricing(:_book_id)', {'_book_id': obj.id}).first().items()
+    current_discounts = {}
+    for tup in values:
+        current_discounts[tup[0]] = tup[1]
+    base_price = obj.base_price
+    calculated_price = Decimal(0)
+    if not current_discounts['category_discount_valid_until'] and not current_discounts['product_pricing_valid_until']:
+        return base_price
+    elif current_discounts['category_discount_valid_until'] and current_discounts['product_pricing_valid_until']:
+        calculated_price = calculate_price_both_present(base_price, current_discounts)
+    elif current_discounts['category_discount_valid_until']:
+        calculated_price = calculate_price_category_discount_present(base_price, current_discounts)
+    elif current_discounts['product_pricing_valid_until']:
+        calculated_price = calculate_price_product_pricing_present(base_price, current_discounts)
+
+    return calculated_price
+
+
+def get_current_pricing(obj):
+    values = db.session.execute('SELECT * FROM get_pricing(:_book_id)', {'_book_id': obj.id}).first().items()
+    current_discounts = {}
+    for tup in values:
+        current_discounts[tup[0]] = tup[1]
+    base_price = obj.base_price
+    calculated_price = Decimal(0)
+    if not current_discounts['category_discount_valid_until'] and not current_discounts['product_pricing_valid_until']:
+        return base_price
+    elif current_discounts['category_discount_valid_until'] and current_discounts['product_pricing_valid_until']:
+        calculated_price = calculate_price_both_present(base_price, current_discounts)
+    elif current_discounts['category_discount_valid_until']:
+        calculated_price = calculate_price_category_discount_present(base_price, current_discounts)
+    elif current_discounts['product_pricing_valid_until']:
+        calculated_price = calculate_price_product_pricing_present(base_price, current_discounts)
+
+    current_discounts['price'] = calculated_price
+    current_discounts['base_price'] = base_price
+    return current_discounts
+
+
+def calculate_price(item_id, quantity):
+    return get_current_price(item_id) * Decimal(quantity)
 
 
 def get_single_image(obj):
@@ -57,43 +102,6 @@ def get_single_image(obj):
 
 def get_authors(obj):
     return [author.real_name for author in obj.get_authors()]
-
-
-def filter_by_author(name):
-    author_name = AuthorName.query.filter_by(name=name).first()
-    author = author_name.owner
-    names = [an for an in author.names]
-    books = []
-    for an in names:
-        books.extend(an.books)
-    return books
-
-
-def filter_by_genre(genre):
-    gen = Genre.query.filter_by(name=genre).first()
-    return gen.books
-
-
-def filter_by_price(interval):
-    price = interval.split(':')
-    f = price[0]
-    t = price[1]
-    books = []
-    for book in Book.query.all():
-        current_price = book.get_current_price()
-        if Decimal(f) < current_price < Decimal(t):
-            books.append(book)
-    return books
-
-
-def filter_by_publisher(name):
-    publisher = Publisher.query.filter_by(name=name).first()
-    return publisher.books
-
-
-def filter_by_tag(name):
-    tag = Tag.query.filter_by(tag=name).first()
-    return tag.books
 
 
 def filter_books(filter_by):

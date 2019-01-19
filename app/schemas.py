@@ -50,18 +50,18 @@ class CategoryDiscountSchema(ma.ModelSchema):
 class BookCompactSchema(ma.ModelSchema):
     class Meta:
         model = Book
-        fields = ('id', 'title', 'authors_names', 'tags', 'price', 'cover')
+        fields = ('id', 'title', 'authors_names', 'tags', 'pricing', 'cover')
 
     authors_names = ma.Nested(AuthorNameSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
-    price = fields.Function(get_current_price)
+    pricing = fields.Function(get_current_pricing)
     cover = fields.Function(get_single_image)
 
 
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
-        fields = ('id', 'title', 'authors_names', 'publishers', 'genres', 'price', 'release_date',
+        fields = ('id', 'title', 'authors_names', 'publishers', 'genres', 'pricing', 'release_date',
                   'number_in_stock', 'is_featured', 'description', 'covers', 'tags', 'ISBN')
 
     authors_names = ma.Nested(AuthorNameSchema, many=True)
@@ -69,8 +69,7 @@ class BookSchema(ma.ModelSchema):
     genres = ma.Nested(GenreSchema, many=True)
     covers = ma.Nested(CoverSchema, many=True)
     tags = ma.Nested(TagSchema, many=True)
-    price = ma.Function(get_current_price)
-
+    pricing = fields.Function(get_current_pricing)
 
 
 class BookSearchableSchema(ma.ModelSchema):

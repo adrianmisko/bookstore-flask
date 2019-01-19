@@ -3,7 +3,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from app.search import add_to_index, remove_from_index, query_index
 import datetime
-from sqlalchemy import and_, or_
 
 
 class SearchableMixin(object):
@@ -83,18 +82,6 @@ class Book(SearchableMixin, db.Model):
     def get_authors(self):
         return [name.owner for name in self.authors_names]
 
-    def get_current_price(self):
-        pp = ProductPricing.query \
-            .filter(
-            and_(ProductPricing.book_id == self.id,
-                 ProductPricing.valid_until > datetime.datetime.now(),
-                 ProductPricing.valid_from < datetime.datetime.now())) \
-            .first()
-        if pp is not None:
-            return pp.price
-        else:
-            return self.base_price
-
 
 class Cover(db.Model):
     path = db.Column(db.String(128), primary_key=True)
@@ -108,10 +95,8 @@ class ProductPricing(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), primary_key=True)
     valid_until = db.Column(db.DateTime, primary_key=True)
     valid_from = db.Column(db.DateTime, nullable=False, index=True)
-    price = db.Column(db.Numeric(11, 2), nullable=False)
-    discount_unit = db.Column(db.String(32), nullable=False)
-    min_order_value = db.Column(db.Numeric(11, 2), nullable=False)
-    max_discount_amount = db.Column(db.Numeric(11, 2))
+    discount_value = db.Column(db.Numeric(11, 2), nullable=False)
+    discount_percent = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return '<Product pricing book_id: {}, price: {}>'.format(self.book_id, self.price)
@@ -176,8 +161,7 @@ class Author(db.Model):
 class Genre(db.Model):
     name = db.Column(db.String(32), primary_key=True)
 
-    discounts = db.relationship('CategoryDiscount', secondary='discounts_genres',
-                                backref='genres', lazy='joined')
+    discounts = db.relationship('CategoryDiscount', backref='genres', lazy='dynamic')
 
     def __repr__(self):
         return '<Genre \'{}\'>'.format(self.name)
@@ -190,23 +174,14 @@ books_genres = db.Table('books_genres',
 
 
 class CategoryDiscount(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    genre_name = db.Column(db.String(32), db.ForeignKey('genre.name'), primary_key=True)
+    valid_until = db.Column(db.DateTime, primary_key=True)
     discount_value = db.Column(db.Numeric(11, 2))
-    discount_unit = db.Column(db.String(16))
+    discount_percent = db.Column(db.String(16))
     valid_from = db.Column(db.DateTime, index=True)
-    valid_until = db.Column(db.DateTime, index=True)
-    min_order_value = db.Column(db.Numeric(11, 2))
-    max_discount_amount = db.Column(db.Numeric(11, 2))
 
     def __repr__(self):
         return '<Discount for genres \'{}\' valid until \'{}\'>'.format(self.genres, self.valid_until)
-
-
-discounts_genres = db.Table('discounts_genres',
-    db.Column('category_discount_id', db.Integer,
-                                     db.ForeignKey('category_discount.id'), primary_key=True),
-    db.Column('genre_name', db.String(32), db.ForeignKey('genre.name'), primary_key=True)
-)
 
 
 class Publisher(db.Model):

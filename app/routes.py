@@ -300,3 +300,6 @@ def cancel_downvote(id):
         db.session.commit()
         return jsonify({'ok': 'ok'}), 200
 
+
+
+
