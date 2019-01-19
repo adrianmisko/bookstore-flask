@@ -76,7 +76,7 @@ def get_current_pricing(obj):
     base_price = obj.base_price
     calculated_price = Decimal(0)
     if not current_discounts['category_discount_valid_until'] and not current_discounts['product_pricing_valid_until']:
-        return base_price
+        calculated_price = base_price
     elif current_discounts['category_discount_valid_until'] and current_discounts['product_pricing_valid_until']:
         calculated_price = calculate_price_both_present(base_price, current_discounts)
     elif current_discounts['category_discount_valid_until']:
