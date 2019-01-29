@@ -86,7 +86,7 @@ def get_users_orders(id):
         .order_by(Order.order_date.desc()).paginate(page, app.config['PER_PAGE'], False)
     return jsonify({
         'total': orders.total,
-        'orders': orders_compact_schema.dump(orders.items).data
+        'data': orders_compact_schema.dump(orders.items).data
     }), 200
 
 
