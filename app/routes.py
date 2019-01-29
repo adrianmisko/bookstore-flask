@@ -105,6 +105,9 @@ def make_order(id):
         items = [ItemOrdered(order=order, book=Book.query.get(item.get('id')), quantity=item.get('quantity'),
                              price=calculate_price(item.get('id'), item.get('quantity')))
                  for item in items_ordered_validating_schema.load(request.json.get('items')).data]
+        for item in items:
+            book = Book.query.get(item.get('id'))
+            book.number_in_stock -= item.get('quantity')
         order.items_ordered = items
         delivery_method = DeliveryMethod.query.filter_by(name=request.json.get('delivery_method')).first()
         order.total_price = sum([item.price for item in items]) + delivery_method.cost
@@ -117,6 +120,7 @@ def make_order(id):
         db.session.commit()
         return jsonify({'id': order.id}), 201
     except ValidationError as err:
+        print(err)
         return jsonify(err.messages), 400
     except Exception:
         db.session.rollback()
@@ -324,7 +328,5 @@ def cancel_downvote(id):
         review.downvotes = review.downvotes - 1
         db.session.commit()
         return jsonify({'ok': 'ok'}), 200
-
-
 
 

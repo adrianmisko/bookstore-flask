@@ -135,6 +135,12 @@ class ItemsOrderedValidatingSchema(ma.Schema):
     quantity = fields.Integer(required=True, validate=validate.Range(min=1, max=99,
                                                                      error='Quantity must be greater than 0 and less than 100'))
 
+    @post_load
+    def validate_availability(self, items):
+        book = Book.query.get(items['id'])
+        if book.number_in_stock < items['quantity']:
+            raise ValidationError("There aren't enough books in stock")
+
 
 class ItemsOrderedSchema(ma.ModelSchema):
     class Meta:
