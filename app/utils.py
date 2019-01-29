@@ -104,7 +104,7 @@ def get_authors(obj):
     return [author.real_name for author in obj.get_authors()]
 
 
-def filter_books(filter_by):
+def filter_books(filter_by, page):
 
     options = ['authors_names', 'publishers', 'prices', 'genres', 'tags']
     query_args = {option: [] for option in options}
@@ -143,4 +143,4 @@ def filter_books(filter_by):
         conditions.append(Book.id.in_(
             db.session.query(Book.id).filter(Book.number_in_stock > 0)))
 
-    return Book.query.filter(*conditions).all()
+    return Book.query.filter(*conditions).all().paginate(page, app.config['PER_PAGE'], False)

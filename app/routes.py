@@ -15,15 +15,16 @@ def get_books():
     search_by = request.args.get('search')
     if search_by is None:
         if not request.args:
-            books = Book.query.all()
+            books = Book.query.all().paginate(1, app.config['PER_PAGE'], False)
             return jsonify(books_compact_schema.dump(books).data), 200
         else:
-            books = filter_books(request.args)
+            page = request.args.get('page', 1, type=int)
+            books = filter_books(request.args, page)
             if request.args.get('detailed'):
                 return jsonify(books_schema.dump(books).data), 200
             return jsonify(books_compact_schema.dump(books).data), 200
     else:
-        page = request.args.get('page') or 1
+        page = request.args.get('page', 1, type=int)
         books, found_total = Book.search(search_by, page=page)
         return jsonify(books_compact_schema.dump(books.all()).data), 200
 
@@ -35,7 +36,8 @@ def get_book_by_id(id):
 
 @app.route('/api/books/<int:id>/reviews', methods=['GET'])
 def get_reviews(id):
-    book = Book.query.filter_by(id=id).first()
+    page = request.args.get('page', 1, type=int)
+    book = Book.query.filter_by(id=id).first().paginate(page, app.config['PER_PAGE'], False)
     if book is None:
         return 404
     return jsonify(reviews_schema.dump(book.reviews).data), 200
@@ -66,7 +68,9 @@ def get_users_orders(id):
     client = Client.query.filter_by(id=id).first()
     if client is None:
         return 404
-    orders = Order.query.filter_by(client=client).order_by(Order.order_date.desc()).limit(20)
+    page = request.args.get('page', 1, type=int)
+    orders = Order.query.filter_by(client=client)\
+        .order_by(Order.order_date.desc()).paginate(page, app.config['PER_PAGE'], False)
     return jsonify(orders_compact_schema.dump(orders).data), 200
 
 
@@ -223,9 +227,10 @@ def get_payment_methods():
 
 @app.route('/api/users/<int:id>/locations', methods=['GET'])
 def get_users_last_order_location(id):
-    last_n = request.json.get('last_n', 5)
+    page = request.args.get('page', 1, type=int)
     locations = Location.query.join(Order).join(Client)\
-        .filter(Client.id == id, Order._location_fk == Location.id).order_by(Order.order_date.desc()).limit(last_n)
+        .filter(Client.id == id, Order._location_fk == Location.id)\
+        .order_by(Order.order_date.desc()).paginate(page, app.config['PER_PAGE'], False)
     if not locations:
         return 404
     return jsonify(locations_schema.dump(locations).data), 200
@@ -243,7 +248,8 @@ def get_user_details(id):
 
 @app.route('/api/discounts', methods=['GET'])
 def get_all_discounts():
-    cd = CategoryDiscount.query.all()
+    page = request.args.get('page', 1, type=int)
+    cd = CategoryDiscount.query.all().page(1, app.config['PER_PAGE'], False)
     if cd is None:
         return 404
     return jsonify(category_discount_schema.dump(cd).data), 200
