@@ -52,7 +52,7 @@ def get_reviews(id):
     reviews = book.reviews.paginate(page, app.config['PER_PAGE'], False)
     return jsonify({
         'total': reviews.total,
-        'data': reviews_schema.dump(reviews.items).reviews
+        'data': reviews_schema.dump(reviews.items).data
     }), 200
 
 
