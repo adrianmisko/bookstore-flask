@@ -16,13 +16,22 @@ def get_books():
     if search_by is None:
         if not request.args:
             books = Book.query.all().paginate(1, app.config['PER_PAGE'], False)
-            return jsonify(books_compact_schema.dump(books).data), 200
+            return jsonify({
+                'total': books.total,
+                'data': books_compact_schema.dump(books.items).data
+            }), 200
         else:
             page = request.args.get('page', 1, type=int)
-            books = filter_books(request.args, page)
+            res = filter_books(request.args, page)
             if request.args.get('detailed'):
-                return jsonify(books_schema.dump(books).data), 200
-            return jsonify(books_compact_schema.dump(books).data), 200
+                return jsonify({
+                    'total': res.total,
+                    'data': books_schema.dump(res.items).data
+                }), 200
+            return jsonify({
+                'total': res.total,
+                'data': books_compact_schema.dump(res.items).data
+            }), 200
     else:
         page = request.args.get('page', 1, type=int)
         books, found_total = Book.search(search_by, page=page)
@@ -41,7 +50,10 @@ def get_reviews(id):
     if book is None:
         return 404
     reviews = book.reviews.paginate(page, app.config['PER_PAGE'], False)
-    return jsonify(reviews_schema.dump(book.reviews).reviews), 200
+    return jsonify({
+        'total': reviews.total,
+        'data': reviews_schema.dump(reviews.items).reviews
+    }), 200
 
 
 @app.route('/api/books/<int:id>/reviews', methods=['POST'])
@@ -72,7 +84,10 @@ def get_users_orders(id):
     page = request.args.get('page', 1, type=int)
     orders = Order.query.filter_by(client=client)\
         .order_by(Order.order_date.desc()).paginate(page, app.config['PER_PAGE'], False)
-    return jsonify(orders_compact_schema.dump(orders).data), 200
+    return jsonify({
+        'total': orders.total,
+        'orders': orders_compact_schema.dump(orders.items).data
+    }), 200
 
 
 @app.route('/api/users/<int:client_id>/orders/<int:order_id>', methods=['GET'])
@@ -234,7 +249,10 @@ def get_users_last_order_location(id):
         .order_by(Order.order_date.desc()).paginate(page, app.config['PER_PAGE'], False)
     if not locations:
         return 404
-    return jsonify(locations_schema.dump(locations).data), 200
+    return jsonify({
+        'total': locations.total,
+        'data': locations_schema.dump(locations.items).data
+        }), 200
 
 
 @app.route('/api/users/<int:id>', methods=['GET'])
