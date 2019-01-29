@@ -37,10 +37,11 @@ def get_book_by_id(id):
 @app.route('/api/books/<int:id>/reviews', methods=['GET'])
 def get_reviews(id):
     page = request.args.get('page', 1, type=int)
-    book = Book.query.filter_by(id=id).first().paginate(page, app.config['PER_PAGE'], False)
+    book = Book.query.filter_by(id=id).first()
     if book is None:
         return 404
-    return jsonify(reviews_schema.dump(book.reviews).data), 200
+    reviews = book.reviews.paginate(page, app.config['PER_PAGE'], False)
+    return jsonify(reviews_schema.dump(book.reviews).reviews), 200
 
 
 @app.route('/api/books/<int:id>/reviews', methods=['POST'])
