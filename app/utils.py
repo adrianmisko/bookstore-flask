@@ -143,4 +143,4 @@ def filter_books(filter_by, page):
         conditions.append(Book.id.in_(
             db.session.query(Book.id).filter(Book.number_in_stock > 0)))
 
-    return Book.query.filter(*conditions).all().paginate(page, app.config['PER_PAGE'], False)
+    return Book.query.filter(*conditions).paginate(page, app.config['PER_PAGE'], False)
