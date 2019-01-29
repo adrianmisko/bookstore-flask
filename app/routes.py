@@ -106,8 +106,7 @@ def make_order(id):
                              price=calculate_price(item.get('id'), item.get('quantity')))
                  for item in items_ordered_validating_schema.load(request.json.get('items')).data]
         for item in items:
-            book = Book.query.get(item.get('id'))
-            book.number_in_stock -= item.get('quantity')
+            item.book.number_in_stock -= item.quantity
         order.items_ordered = items
         delivery_method = DeliveryMethod.query.filter_by(name=request.json.get('delivery_method')).first()
         order.total_price = sum([item.price for item in items]) + delivery_method.cost
@@ -120,10 +119,8 @@ def make_order(id):
         db.session.commit()
         return jsonify({'id': order.id}), 201
     except ValidationError as err:
-        print(err)
         return jsonify(err.messages), 400
     except Exception as err:
-        print(err)
         db.session.rollback()
         return jsonify({'error': 'error'}), 400
 

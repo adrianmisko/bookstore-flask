@@ -90,7 +90,8 @@ def get_current_pricing(obj):
 
 
 def calculate_price(item_id, quantity):
-    return get_current_price(item_id) * Decimal(quantity)
+    book = Book.query.get(item_id)
+    return get_current_price(book) * Decimal(quantity)
 
 
 def get_single_image(obj):
