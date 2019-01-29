@@ -138,7 +138,7 @@ def filter_books(filter_by, page):
 
     if filter_by.get('featured') == 'true':
         conditions.append(Book.id.in_(
-        db.session.query(Book.id).filter(Book.is_featured == True)))
+        db.session.query(Book.id).filter(Book.is_featured)))
     if filter_by.get('available') == 'true':
         conditions.append(Book.id.in_(
             db.session.query(Book.id).filter(Book.number_in_stock > 0)))

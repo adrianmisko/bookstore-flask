@@ -122,7 +122,8 @@ def make_order(id):
     except ValidationError as err:
         print(err)
         return jsonify(err.messages), 400
-    except Exception:
+    except Exception as err:
+        print(err)
         db.session.rollback()
         return jsonify({'error': 'error'}), 400
 
