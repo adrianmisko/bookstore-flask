@@ -2,6 +2,7 @@ from app.schemas import *
 from flask import request, jsonify
 from app.utils import *
 from marshmallow import ValidationError
+import base64
 
 
 @app.route('/')
@@ -76,11 +77,14 @@ def add_review(id):
         return jsonify(err.messages), 400
 
 
+@auth.login_required
 @app.route('/api/users/<int:id>/orders', methods=['GET'])
 def get_users_orders(id):
     client = Client.query.filter_by(id=id).first()
     if client is None:
         return 404
+    if client != g.client:
+        return 'unauthorized', 401
     page = request.args.get('page', 1, type=int)
     orders = Order.query.filter_by(client=client)\
         .order_by(Order.order_date.desc()).paginate(page, app.config['PER_PAGE'], False)
@@ -90,16 +94,28 @@ def get_users_orders(id):
     }), 200
 
 
+@auth.login_required
 @app.route('/api/users/<int:client_id>/orders/<int:order_id>', methods=['GET'])
 def get_order(client_id, order_id):
+    client = Client.query.get(client_id)
+    if client is None:
+        return 404
+    if client != g.client:
+        return 'unauthorized', 401
     order = Order.query.get(order_id)
     if order is None:
         return jsonify({'error': 404}), 404
     return jsonify(order_schema.dump(order).data), 200
 
 
+@auth.login_required
 @app.route('/api/users/<int:id>/orders', methods=['POST'])
 def make_order(id):
+    client = Client.query.get(id)
+    if client is None:
+        return 404
+    if client != g.client:
+        return 'unauthorized', 401
     try:
         order = Order()
         items = [ItemOrdered(order=order, book=Book.query.get(item.get('id')), quantity=item.get('quantity'),
@@ -126,8 +142,14 @@ def make_order(id):
 
 
 @app.route('/api/token', methods=['POST'])
-@auth.login_required
 def get_auth_token():
+    username_and_password_b64 = request.headers.get('Authorization', None)
+    if username_and_password_b64 is None:
+        return 'unauthorized', 401
+    username, password = base64.decode(username_and_password_b64).split(':')
+    client = Client.query.get(username)
+    if client is None or not client.verify_password(password):
+        return 'unauthorized', 401
     token = g.client.generate_auth_token()
     return jsonify({
         'token': token.decode('ascii'),
@@ -257,13 +279,16 @@ def get_users_last_order_location(id):
         }), 200
 
 
+@auth.login_required
 @app.route('/api/users/<int:id>', methods=['GET'])
 def get_user_details(id):
     client = Client.query.get(id)
-    client.locations = Location.query.join(Order).join(Client)\
-        .filter(Client.id == id, Order._location_fk == Location.id).order_by(Order.order_date.desc()).limit(5)
     if client is None:
         return 404
+    if client != g.client:
+        return 'unauthorized', 401
+    client.locations = Location.query.join(Order).join(Client)\
+        .filter(Client.id == id, Order._location_fk == Location.id).order_by(Order.order_date.desc()).limit(5)
     return jsonify(client_details_schema.dump(client).data), 200
 
 
