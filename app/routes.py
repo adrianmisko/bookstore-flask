@@ -146,9 +146,7 @@ def get_auth_token():
     username_and_password_b64 = request.headers.get('Authorization', None)
     if username_and_password_b64 is None:
         return 'unauthorized', 401
-    username_and_password = ''
-    base64.decode(username_and_password_b64, username_and_password)
-    username, password = username_and_password.split(':')
+    username, password = base64.b64decode(username_and_password_b64).split(':')
     client = Client.query.get(username)
     if client is None or not client.verify_password(password):
         return 'unauthorized', 401
