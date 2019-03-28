@@ -16,5 +16,6 @@ ma = Marshmallow(app)
 auth = HTTPBasicAuth()
 app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']], use_ssl=True, ca_certs=certifi.where())
 CORS(app)
+
 from app import routes, models
 

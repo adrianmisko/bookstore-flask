@@ -1,8 +1,17 @@
 from app.schemas import *
-from flask import request, jsonify
+from flask import request, jsonify, g
 from app.utils import *
 from marshmallow import ValidationError
-import base64
+from app import auth
+
+
+@auth.verify_password
+def verify_password(token, _):
+    client = Client.verify_auth_token(token)
+    if not client:
+        return False
+    g.client = client
+    return True
 
 
 @app.route('/')
@@ -77,8 +86,8 @@ def add_review(id):
         return jsonify(err.messages), 400
 
 
-@auth.login_required
 @app.route('/api/users/<int:id>/orders', methods=['GET'])
+@auth.login_required
 def get_users_orders(id):
     client = Client.query.filter_by(id=id).first()
     if client is None:
@@ -94,8 +103,9 @@ def get_users_orders(id):
     }), 200
 
 
-@auth.login_required
+
 @app.route('/api/users/<int:client_id>/orders/<int:order_id>', methods=['GET'])
+@auth.login_required
 def get_order(client_id, order_id):
     client = Client.query.get(client_id)
     if client is None:
@@ -108,8 +118,8 @@ def get_order(client_id, order_id):
     return jsonify(order_schema.dump(order).data), 200
 
 
-@auth.login_required
 @app.route('/api/users/<int:id>/orders', methods=['POST'])
+@auth.login_required
 def make_order(id):
     client = Client.query.get(id)
     if client is None:
@@ -143,20 +153,17 @@ def make_order(id):
 
 @app.route('/api/token', methods=['POST'])
 def get_auth_token():
-    username_and_password_b64 = request.headers.get('Authorization', None)
-    if username_and_password_b64 is None:
-        return 'unauthorized', 401
-    username, password = base64.b64decode(username_and_password_b64).split(':')
-    client = Client.query.get(username)
+    username, password = request.authorization.values()
+    client = Client.query.filter_by(email=username).first()
     if client is None or not client.verify_password(password):
         return 'unauthorized', 401
-    token = g.client.generate_auth_token()
+    token = client.generate_auth_token()
     return jsonify({
         'token': token.decode('ascii'),
-        'id': g.client.id,
-        'email': g.client.email,
-        'name': g.client.name,
-        'surname': g.client.surname
+        'id': client.id,
+        'email': client.email,
+        'name': client.name,
+        'surname': client.surname
     }), 200
 
 
@@ -266,6 +273,7 @@ def get_payment_methods():
 
 
 @app.route('/api/users/<int:id>/locations', methods=['GET'])
+@auth.login_required
 def get_users_last_order_location(id):
     page = request.args.get('page', 1, type=int)
     locations = Location.query.join(Order).join(Client)\
@@ -279,8 +287,8 @@ def get_users_last_order_location(id):
         }), 200
 
 
-@auth.login_required
 @app.route('/api/users/<int:id>', methods=['GET'])
+@auth.login_required
 def get_user_details(id):
     client = Client.query.get(id)
     if client is None:
@@ -295,7 +303,7 @@ def get_user_details(id):
 @app.route('/api/discounts', methods=['GET'])
 def get_all_discounts():
     page = request.args.get('page', 1, type=int)
-    cd = CategoryDiscount.query.all().page(1, app.config['PER_PAGE'], False)
+    cd = CategoryDiscount.query.all().page(page, app.config['PER_PAGE'], False)
     if cd is None:
         return 404
     return jsonify(category_discount_schema.dump(cd).data), 200
